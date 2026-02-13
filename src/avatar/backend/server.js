@@ -2,6 +2,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { openAIChainInvoke, getParser } from "./modules/openAI.mjs";
+import { retrieve } from "./modules/retriever.mjs";
 import { lipSync } from "./modules/lip-sync.mjs";
 import { sendDefaultMessages, defaultResponse } from "./modules/defaultMessages.mjs";
 import { convertAudioToText } from "./modules/whisper.mjs";
@@ -31,11 +32,13 @@ app.post("/tts", async (req, res) => {
     res.send({ messages: defaultMessages });
     return;
   }
+  const { context } = await retrieve({ query: userMessage });
   let openAImessages;
-  const parser = await getParser();
+  const parser = getParser();
   try {
     openAImessages = await openAIChainInvoke({
       question: userMessage,
+      context,
       format_instructions: parser.getFormatInstructions(),
     });
   } catch (error) {
@@ -54,11 +57,13 @@ app.post("/sts", async (req, res) => {
     res.send({ messages: defaultMessages });
     return;
   }
+  const { context } = await retrieve({ query: userMessage });
   let openAImessages;
-  const parser = await getParser();
+  const parser = getParser();
   try {
     openAImessages = await openAIChainInvoke({
       question: userMessage,
+      context,
       format_instructions: parser.getFormatInstructions(),
     });
   } catch (error) {

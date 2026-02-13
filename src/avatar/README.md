@@ -18,7 +18,7 @@ A **digital spokesperson** for a political party: an interactive 3D avatar that 
 
 ![Architecture diagram](../../architecture.drawio.svg)
 
-The system uses **OpenAI** (GPT) for responses, **OpenAI Whisper** for speech-to-text, **ElevenLabs** for text-to-speech, and **Rhubarb Lip-Sync** for lip-sync. The party’s positions come from `content/party_program.md`, which is injected into the LLM so the avatar only states what is in the program.
+The system uses **OpenAI** (GPT and embeddings) for responses and retrieval, **OpenAI Whisper** for speech-to-text, **ElevenLabs** for text-to-speech, and **Rhubarb Lip-Sync** for lip-sync. Answer content is **retrieval-augmented**: the backend queries a vector store over the party’s content (e.g. `content/party_program.md` and `content/Politikk/`), then passes only the retrieved passages to the LLM so answers stay grounded and on-message.
 
 The backend returns a **sequence of messages**. Each message has text, a facial expression, an animation, base64 audio, and lip-sync cues so the 3D avatar can speak and move in sync.
 
@@ -27,17 +27,18 @@ The backend returns a **sequence of messages**. Each message has text, a facial 
 1. **User input** – The user types a question in the chat.
 2. **Request** – The text is sent to the backend (`POST /tts`).
 3. **Default messages** – If the input matches a known case (e.g. empty, missing API keys), the backend may return pre-rendered intro or error messages from `audios/`.
-4. **LLM** – Otherwise the text is sent to OpenAI GPT with the party program as context. The model returns a JSON array of messages (max 3), each with `text`, `facialExpression`, and `animation`.
-5. **TTS** – Each message’s text is sent to ElevenLabs to generate speech; audio is written as `audios/message_N.mp3`.
-6. **Lip-sync** – Rhubarb Lip-Sync produces phoneme/viseme timings from the audio; the backend reads `audios/message_N.json` and attaches base64 audio + mouth cues to each message.
-7. **Response** – The frontend receives the message array and plays them in order; the avatar plays audio and drives mouth morphs from the lip-sync data.
+4. **Retrieval** – The backend queries the vector store (indexed from party program and Politikk content) and gets the most relevant text passages for the question.
+5. **LLM** – The question plus the retrieved context is sent to OpenAI GPT. The model returns a JSON array of messages (max 3), each with `text`, `facialExpression`, and `animation`.
+6. **TTS** – Each message’s text is sent to ElevenLabs to generate speech; audio is written as `audios/message_N.mp3`.
+7. **Lip-sync** – Rhubarb Lip-Sync produces phoneme/viseme timings from the audio; the backend reads `audios/message_N.json` and attaches base64 audio + mouth cues to each message.
+8. **Response** – The frontend receives the message array and plays them in order; the avatar plays audio and drives mouth morphs from the lip-sync data.
 
 ### Workflow with audio input
 
 1. **User input** – The user records with the microphone (browser `MediaRecorder`).
 2. **Request** – The recording is sent as base64 to the backend (`POST /sts`).
 3. **Speech-to-text** – The backend uses OpenAI Whisper to transcribe the audio to text.
-4. **Same as text path** – From step 3 onward, the flow is the same as for text: default messages or LLM → TTS → lip-sync → response.
+4. **Same as text path** – From step 3 onward, the flow is the same as for text: default messages or retrieval → LLM → TTS → lip-sync → response.
 
 ### Message shape
 
@@ -65,7 +66,8 @@ Each message in the API response looks like:
 src/avatar/
 ├── backend/          # API: LLM, TTS, lip-sync, speech-to-text
 │   ├── server.js     # Express app (POST /tts, /sts, GET /voices)
-│   ├── modules/      # openAI (party-aware), elevenLabs, whisper, lip-sync, etc.
+│   ├── modules/      # retriever (vector DB), openAI (party-aware), elevenLabs, whisper, lip-sync, etc.
+│   ├── docs/         # PIPELINE.md (RAG pipeline and component contracts)
 │   ├── utils/        # files, audios, partyProgram loader
 │   └── audios/       # Pre-rendered intro/API messages (optional)
 ├── frontend/         # React + Three.js: 3D avatar, chat UI, speech
