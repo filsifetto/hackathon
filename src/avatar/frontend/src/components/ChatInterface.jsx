@@ -19,7 +19,7 @@ export const ChatInterface = ({ hidden }) => {
   }
 
   return (
-    <div className="chat-card reveal reveal-1">
+    <div className="chat-card inngang inngang-1">
       <div className="chat-header">
         <h3>Sporsmalslinje</h3>
         <p>
