@@ -20,6 +20,12 @@ import { sendDefaultMessages, defaultResponse } from "./modules/defaultMessages.
 import { convertAudioToText } from "./modules/whisper.mjs";
 import { voice } from "./modules/elevenLabs.mjs";
 
+console.log("ENV CHECK", {
+  OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
+  OPEN_API_KEY: !!process.env.OPEN_API_KEY,
+  OPENAI_MODEL: process.env.OPENAI_MODEL || null,
+});
+
 dotenv.config();
 
 const elevenLabsApiKey = process.env.ELEVEN_LABS_API_KEY;
