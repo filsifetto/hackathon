@@ -1,7 +1,7 @@
 import { useAnimations, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { button, useControls } from "leva";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import * as THREE from "three";
 import { useSpeech } from "../hooks/useSpeech";
@@ -9,10 +9,28 @@ import facialExpressions from "../constants/facialExpressions";
 import visemesMapping from "../constants/visemesMapping";
 import morphTargets from "../constants/morphTargets";
 
+function buildNodesAndMaterials(scene) {
+  if (!scene) return { nodes: {}, materials: {} };
+  const nodes = {};
+  const materials = {};
+  scene.traverse((obj) => {
+    const name = obj.name;
+    if (name) {
+      if (obj.isSkinnedMesh || obj.isMesh) nodes[name] = obj;
+      else if (!nodes[name]) nodes[name] = obj;
+    }
+    const mats = obj.material != null ? (Array.isArray(obj.material) ? obj.material : [obj.material]) : [];
+    mats.forEach((m) => { if (m && m.name) materials[m.name] = m; });
+  });
+  return { nodes, materials };
+}
+
 export function Avatar(props) {
   const avatarUrl = "/models/avatar.glb?v=2";
-  const { nodes, materials, scene } = useGLTF(avatarUrl);
-  const { animations } = useGLTF("/models/animations.glb");
+  const gltf = useGLTF(avatarUrl);
+  const scene = gltf.scene;
+  const { nodes, materials } = useMemo(() => buildNodesAndMaterials(scene), [scene]);
+  const { animations } = useGLTF("/models/animations.gltf");
   const { message, onMessagePlayed } = useSpeech();
   const [lipsync, setLipsync] = useState();
   const [setupMode, setSetupMode] = useState(false);
@@ -191,12 +209,16 @@ export function Avatar(props) {
     nodes?.Wolf3D_Head?.geometry &&
     nodes?.EyeLeft?.geometry &&
     nodes?.EyeRight?.geometry &&
+    nodes?.Wolf3D_Teeth?.geometry &&
     nodes?.Wolf3D_Body?.geometry &&
-    materials?.Wolf3D_Skin;
+    materials?.Wolf3D_Skin &&
+    materials?.Wolf3D_Eye &&
+    materials?.Wolf3D_Teeth &&
+    materials?.Wolf3D_Body;
   if (!hasScene) return null;
   if (!isRpmFormat) {
     return (
-      <group {...props} dispose={null} position={[0, -0.5, 0]}>
+      <group {...props} dispose={null} ref={group} position={[0, -0.5, 0]}>
         <primitive object={scene} />
       </group>
     );
@@ -256,21 +278,27 @@ export function Avatar(props) {
         material={materials.Wolf3D_Body}
         skeleton={nodes.Wolf3D_Body.skeleton}
       />
-      <skinnedMesh
-        geometry={nodes.Wolf3D_Outfit_Bottom?.geometry}
-        material={materials.Wolf3D_Outfit_Bottom}
-        skeleton={nodes.Wolf3D_Outfit_Bottom?.skeleton}
-      />
-      <skinnedMesh
-        geometry={nodes.Wolf3D_Outfit_Footwear?.geometry}
-        material={materials.Wolf3D_Outfit_Footwear}
-        skeleton={nodes.Wolf3D_Outfit_Footwear?.skeleton}
-      />
-      <skinnedMesh
-        geometry={nodes.Wolf3D_Outfit_Top?.geometry}
-        material={materials.Wolf3D_Outfit_Top}
-        skeleton={nodes.Wolf3D_Outfit_Top?.skeleton}
-      />
+      {nodes.Wolf3D_Outfit_Bottom?.geometry && materials.Wolf3D_Outfit_Bottom && (
+        <skinnedMesh
+          geometry={nodes.Wolf3D_Outfit_Bottom.geometry}
+          material={materials.Wolf3D_Outfit_Bottom}
+          skeleton={nodes.Wolf3D_Outfit_Bottom.skeleton}
+        />
+      )}
+      {nodes.Wolf3D_Outfit_Footwear?.geometry && materials.Wolf3D_Outfit_Footwear && (
+        <skinnedMesh
+          geometry={nodes.Wolf3D_Outfit_Footwear.geometry}
+          material={materials.Wolf3D_Outfit_Footwear}
+          skeleton={nodes.Wolf3D_Outfit_Footwear.skeleton}
+        />
+      )}
+      {nodes.Wolf3D_Outfit_Top?.geometry && materials.Wolf3D_Outfit_Top && (
+        <skinnedMesh
+          geometry={nodes.Wolf3D_Outfit_Top.geometry}
+          material={materials.Wolf3D_Outfit_Top}
+          skeleton={nodes.Wolf3D_Outfit_Top.skeleton}
+        />
+      )}
     </group>
   );
 }

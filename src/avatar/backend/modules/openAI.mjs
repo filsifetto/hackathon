@@ -3,7 +3,7 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { StructuredOutputParser } from "langchain/output_parsers";
 import { z } from "zod";
 import dotenv from "dotenv";
-import { loadPartyProgram } from "../utils/partyProgram.mjs";
+import { loadPolitikkContent } from "../utils/politikk.mjs";
 
 dotenv.config();
 
@@ -27,20 +27,26 @@ const parser = StructuredOutputParser.fromZodSchema(
   })
 );
 
-function buildTemplate(partyProgramText) {
-  const partyContext = partyProgramText
+function buildTemplate(politikkText) {
+  const contentContext = politikkText
     ? `
-The following is your party's program and situational awareness. Use it to answer questions in line with your party's positions. Do not invent positions not stated here. Keep answers concise and suitable for spoken delivery.
+CRITICAL: You must base your answers ONLY on the following content from content/Politikk. This is your primary source of truth.
 
---- Party program ---
-${partyProgramText}
---- End party program ---
+--- Content (Politikk) ---
+${politikkText}
+--- End content ---
+
+Rules when answering:
+- Ground every answer in the content above. Refer to positions and values stated there.
+- Do not invent or extrapolate positions not stated in the content.
+- If asked about something not covered: say so clearly and offer to focus on areas that are covered.
+- Keep answers concise and suitable for spoken delivery (short sentences, clear structure).
 `
     : "";
 
   return `
   You are a political party representative avatar. You speak on behalf of your party with its values and positions.
-  ${partyContext}
+  ${contentContext}
   You will always respond with a JSON array of messages, with a maximum of 3 messages:
   \n{format_instructions}.
   Each message has properties for text, facialExpression, and animation.
@@ -54,8 +60,8 @@ let cachedPrompt = null;
 let cachedChain = null;
 
 async function getOpenAIChain() {
-  const partyProgramText = await loadPartyProgram();
-  const template = buildTemplate(partyProgramText);
+  const politikkText = await loadPolitikkContent();
+  const template = buildTemplate(politikkText);
   const prompt = ChatPromptTemplate.fromMessages([
     ["ai", template],
     ["human", "{question}"],
