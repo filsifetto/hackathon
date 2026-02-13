@@ -9,6 +9,8 @@ Interactive talking avatar that represents your political party. Users ask quest
 
 ## Model pipeline
 
+![Architecture diagram](../../architecture.drawio.svg)
+
 The system uses **OpenAI** (GPT) for responses, **OpenAI Whisper** for speech-to-text, **ElevenLabs** for text-to-speech, and **Rhubarb Lip-Sync** for lip-sync. The party’s positions come from `content/party_program.md`, which is injected into the LLM so the avatar only states what is in the program.
 
 The backend returns a **sequence of messages**. Each message has text, a facial expression, an animation, base64 audio, and lip-sync cues so the 3D avatar can speak and move in sync.
