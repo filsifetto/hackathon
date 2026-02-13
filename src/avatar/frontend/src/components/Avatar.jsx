@@ -33,7 +33,6 @@ export function Avatar(props) {
   const leftEye = useRef();
   const rightEye = useRef();
 
-  const { message } = useSpeech();
   const [blink, setBlink] = useState(false);
 
   useEffect(() => {
