@@ -1,9 +1,13 @@
-import { OpenAIWhisperAudio } from "langchain/document_loaders/fs/openai_whisper_audio";
-import { convertAudioToMp3 } from "../utils/audios.mjs";
-import fs from "fs";
+/**
+ * Speech-to-text using OpenAI Whisper API.
+ */
+import OpenAI from "openai";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import { convertAudioToMp3 } from "../utils/audios.mjs";
+
 dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -11,15 +15,19 @@ const openAIApiKey = process.env.OPENAI_API_KEY;
 
 async function convertAudioToText({ audioData }) {
   const mp3AudioData = await convertAudioToMp3({ audioData });
-  const outputPath = path.join(__dirname, "../tmp/output.mp3");
-  const tmpDir = path.dirname(outputPath);
+  const tmpDir = path.join(__dirname, "../utils/tmp");
   if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+  const outputPath = path.join(tmpDir, "output.mp3");
   fs.writeFileSync(outputPath, mp3AudioData);
-  const loader = new OpenAIWhisperAudio(outputPath, { clientOptions: { apiKey: openAIApiKey } });
-  const doc = (await loader.load()).shift();
-  const transcribedText = doc.pageContent;
+
+  const openai = new OpenAI({ apiKey: openAIApiKey });
+  const transcription = await openai.audio.transcriptions.create({
+    file: fs.createReadStream(outputPath),
+    model: "whisper-1",
+  });
+
   fs.unlinkSync(outputPath);
-  return transcribedText;
+  return transcription.text;
 }
 
 export { convertAudioToText };

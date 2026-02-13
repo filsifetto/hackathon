@@ -84,6 +84,10 @@ app.post("/sts", async (req, res) => {
   res.send({ messages: openAImessages });
 });
 
-app.listen(port, () => {
-  console.log(`Party avatar backend listening on port ${port}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(port, () => {
+    console.log(`Party avatar backend listening on port ${port}`);
+  });
+}
+
+export { app };

@@ -79,6 +79,35 @@ api_key = os.environ.get('OPENAI_API_KEY')
 - Get key: https://platform.openai.com/api-keys
 - Format: `OPENAI_API_KEY=sk-...`
 
+### ElevenLabs (Avatar TTS)
+
+Based on [ElevenLabs official documentation](https://elevenlabs.io/docs).
+
+- **Sign up:** https://elevenlabs.io/
+- **API key:** https://elevenlabs.io/app/settings/api-keys  
+  Format: `ELEVEN_LABS_API_KEY=...` (store in `.env`, never commit)
+
+- **Voice ID:** Unique identifier for each voice. List voices via API:
+  - `GET https://api.elevenlabs.io/v1/voices` (requires API key in `xi-api-key` header)
+  - `?category=premade` – default voices only
+  - `?show_legacy=true` – include legacy voices
+  - Response: `{ "voices": [ { "voice_id": "pNInz6obpgDQGcFmaJgB", "name": "Adam", ... } ] }`  
+  Or use your avatar backend: `GET http://localhost:3000/voices` when running.
+
+- **Model ID:** TTS model for synthesis. From [ElevenLabs models](https://elevenlabs.io/docs/models):
+  - `eleven_multilingual_v2` – High quality, multilingual (default; best for content)
+  - `eleven_flash_v2_5` – Low latency (~75ms; for real-time/conversational AI)
+  - `eleven_turbo_v2_5` – Balanced quality and speed
+  - `eleven_multilingual_ttv_v2` – State-of-the-art multilingual voice designer
+  - `eleven_monolingual_v1` – Legacy English-only (outclassed by v2)
+
+**Avatar backend** (`src/avatar/backend/.env`):
+```
+ELEVEN_LABS_API_KEY=your_key
+ELEVEN_LABS_VOICE_ID=your_voice_id
+ELEVEN_LABS_MODEL_ID=eleven_multilingual_v2
+```
+
 ### Google Maps
 - Sign up: https://console.cloud.google.com/
 - Get key: Enable Maps API and create credentials

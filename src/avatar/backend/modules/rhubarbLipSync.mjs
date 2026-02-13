@@ -1,28 +1,32 @@
-import { execCommand } from "../utils/files.mjs";
+/**
+ * Lip-sync phoneme generation using Rhubarb Lip-Sync.
+ * Requires rhubarb binary in src/avatar/backend/bin/
+ * https://github.com/DanielSWolf/rhubarb-lip-sync/releases
+ */
 import path from "path";
 import { fileURLToPath } from "url";
+import { execCommand } from "../utils/files.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const backendDir = path.resolve(__dirname, "..");
+const binDir = path.join(backendDir, "bin");
+const audiosDir = path.join(backendDir, "audios");
+const rhubarbPath = path.join(binDir, "rhubarb");
 
-const getPhonemes = async ({ message }) => {
-  try {
-    const time = new Date().getTime();
-    console.log(`Starting conversion for message ${message}`);
-    await execCommand({
-      command: `ffmpeg -y -i audios/message_${message}.mp3 audios/message_${message}.wav`,
-      cwd: backendDir,
-    });
-    console.log(`Conversion done in ${new Date().getTime() - time}ms`);
-    const binPath = path.join(backendDir, "bin", "rhubarb");
-    await execCommand({
-      command: `"${binPath}" -f json -o audios/message_${message}.json audios/message_${message}.wav -r phonetic`,
-      cwd: backendDir,
-    });
-    console.log(`Lip sync done in ${new Date().getTime() - time}ms`);
-  } catch (error) {
-    console.error(`Error while getting phonemes for message ${message}:`, error);
-  }
-};
+async function getPhonemes({ message }) {
+  const mp3Path = path.join(audiosDir, `message_${message}.mp3`);
+  const wavPath = path.join(audiosDir, `message_${message}.wav`);
+  const jsonPath = path.join(audiosDir, `message_${message}.json`);
+
+  // Rhubarb expects WAV; convert MP3 to WAV with ffmpeg if needed
+  await execCommand({
+    command: `ffmpeg -y -i "${mp3Path}" "${wavPath}"`,
+  });
+
+  await execCommand({
+    command: `"${rhubarbPath}" -f json -o "${jsonPath}" "${wavPath}" -r phonetic`,
+    cwd: backendDir,
+  });
+}
 
 export { getPhonemes };

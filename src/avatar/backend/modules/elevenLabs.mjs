@@ -1,10 +1,14 @@
+/**
+ * Text-to-speech using ElevenLabs API.
+ */
 import ElevenLabs from "elevenlabs-node";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const elevenLabsApiKey = process.env.ELEVEN_LABS_API_KEY;
 const voiceID = process.env.ELEVEN_LABS_VOICE_ID;
-const modelID = process.env.ELEVEN_LABS_MODEL_ID;
+const modelID = process.env.ELEVEN_LABS_MODEL_ID || "eleven_multilingual_v2";
 
 const voice = new ElevenLabs({
   apiKey: elevenLabsApiKey,
@@ -13,7 +17,7 @@ const voice = new ElevenLabs({
 
 async function convertTextToSpeech({ text, fileName }) {
   await voice.textToSpeech({
-    fileName: fileName,
+    fileName,
     textInput: text,
     voiceId: voiceID,
     stability: 0.5,
