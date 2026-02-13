@@ -53,6 +53,8 @@ export function Avatar(props) {
     }
   }, [animation]);
 
+  const head = useRef();
+  const mouth = useRef();
   const lerpMorphTarget = (target, value, speed = 0.1) => {
     scene.traverse((child) => {
       if (child.isSkinnedMesh && child.morphTargetDictionary) {

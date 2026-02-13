@@ -1,0 +1,21 @@
+\section{Bottlenecks}
+
+\subsection{Structural Bottlenecks}
+\begin{enumerate}
+    \item \textbf{Single pipeline per request}: One request holds the full chain (OpenAI $\to$ lip-sync) until completion. Concurrency is limited by how many such pipelines the server runs (and by external rate limits).
+    \item \textbf{ElevenLabs as bottleneck}: The code retries on HTTP 429 (rate limit) with \texttt{MAX\_RETRIES = 10} and \texttt{RETRY\_DELAY = 0}. Zero delay gives little backoff; under load, many requests can hammer the API and worsen rate limiting. ElevenLabs becomes the main external bottleneck for TTS.
+    \item \textbf{Lip-sync stage ordering}: All TTS must finish before any phoneme step runs. So the slowest TTS message delays the whole phoneme phase. There is no pipeline where message 1 can already be in Rhubarb while message 2 is still in TTS.
+\end{enumerate}
+
+\subsection{Resource Bottlenecks}
+\begin{enumerate}
+    \item \textbf{Disk I/O}: Reads of party program, default audio/JSON, and writes of \texttt{audios/message\_*.mp3}, \texttt{*.wav}, \texttt{*.json}. Under concurrency, multiple requests can contend on the same \texttt{audios} directory (and overwrite \texttt{message\_0.mp3} etc.\ if not isolated per request).
+    \item \textbf{Process spawning}: Each request runs multiple ffmpeg and Rhubarb processes. No process pool or queue; under load this can stress the OS and CPU.
+    \item \textbf{Memory}: Base64-encoded audio and full JSON are held in memory per message and returned in one response; large replies increase memory and response size.
+\end{enumerate}
+
+\subsection{Correctness and Robustness}
+\begin{itemize}
+    \item \textbf{Shared filenames}: \texttt{audios/message\_0.mp3}, \texttt{message\_1.mp3}, etc., are shared across requests. Concurrent requests can overwrite each other’s files and return wrong audio or phonemes. This is a critical correctness bottleneck.
+    \item \textbf{Error handling}: If TTS or Rhubarb fails for one message, the error is logged and an empty \texttt{mouthCues} is used; the rest of the pipeline continues. Whisper or OpenAI failures fall back to default or “I didn’t catch that” without retry or cost control.
+\end{itemize}

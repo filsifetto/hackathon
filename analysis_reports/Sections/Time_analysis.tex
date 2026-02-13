@@ -1,0 +1,19 @@
+\section{Time Analysis}
+
+\subsection{End-to-End Latency}
+The user experiences the sum of all sequential steps until the first byte of the response. There is no streaming: the client waits for the full list of messages (each with audio and lip-sync data) before playback.
+
+\begin{itemize}
+    \item \textbf{Default-message branch}: Fast (disk reads only) when no API keys or empty input.
+    \item \textbf{OpenAI chain}: Loading the party program and building the chain add one file read and chain construction per request. The dominant cost is the single LLM call (e.g.\ GPT-4o-mini), typically on the order of 1--5 seconds depending on input and model.
+    \item \textbf{Lip-sync stage}: For $n$ messages (up to 3), TTS runs in parallel but the stage is blocked until \emph{all} TTS finish. Then ffmpeg (MP3$\to$WAV) and Rhubarb run per message, again in parallel. So total time is roughly: $\max(\text{TTS}_1,\ldots,\text{TTS}_n) + \max(\text{ffmpeg+Rhubarb}_1,\ldots,\text{ffmpeg+Rhubarb}_n)$. Each ElevenLabs call can be 1--4 seconds; ffmpeg and Rhubarb add roughly 0.5--2 seconds per message depending on length. With three messages, the lip-sync phase alone can reach several seconds.
+\end{itemize}
+
+\subsection{Weaknesses in Time}
+\begin{enumerate}
+    \item \textbf{Strictly sequential stages}: Default check $\to$ OpenAI $\to$ lip-sync. No overlap between LLM and TTS.
+    \item \textbf{No streaming}: The frontend cannot start playing the first message while the rest are still being generated or synthesised.
+    \item \textbf{Redundant work per request}: Party program and chain are re-built or re-loaded every time; only the chain reference is cached, not the result of \texttt{loadPartyProgram()} inside \texttt{getOpenAIChain()}.
+    \item \textbf{STS path extra cost}: Speech path adds WebM$\to$MP3 conversion (file write, ffmpeg, read) and a Whisper API call before the same pipeline, increasing latency by 1--3 seconds.
+    \item \textbf{Temp files}: Whisper and audios use temp files; cleanup is done in the happy path, but not guaranteed on early errors.
+\end{enumerate}

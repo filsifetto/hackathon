@@ -1,0 +1,7 @@
+\section{Introduction}
+
+This report analyses the party avatar pipeline: the backend and frontend flow that turns a user question (text or speech) into a spoken, lip-synced avatar response. The goal is to identify weaknesses in terms of \emph{time} (latency and throughput), \emph{spending} (API and infrastructure cost), and \emph{bottlenecks} (sequential steps, rate limits, and resource contention).
+
+The pipeline is used in a hackathon avatar application where a political party representative answers questions. Users can send text (\texttt{/tts}) or voice (\texttt{/sts}); the backend calls OpenAI for reply generation, ElevenLabs for text-to-speech, and Rhubarb Lip-Sync for phoneme data, then returns messages with base64 audio and lip-sync cues to the frontend.
+
+The analysis is based on the codebase in \texttt{src/avatar/backend} and \texttt{src/avatar/frontend}, including the Express server, OpenAI (LangChain) and Whisper modules, ElevenLabs TTS, and the lip-sync orchestration that uses ffmpeg and Rhubarb.

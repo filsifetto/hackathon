@@ -1,0 +1,17 @@
+\section{Spending Analysis}
+
+\subsection{Cost Drivers}
+\begin{itemize}
+    \item \textbf{OpenAI}: GPT-4o-mini (or configured model) is charged per token (input and output). Each user question and the system/party context consume input tokens; the JSON array of messages is output. Whisper is charged per minute of audio for \texttt{/sts} \textcite{openai_pricing}.
+    \item \textbf{ElevenLabs}: Usage is typically metered by characters or by time of generated audio, depending on plan \textcite{elevenlabs_pricing}. Every non-default reply triggers one TTS call per message (up to three per request).
+    \item \textbf{Local compute}: ffmpeg and Rhubarb run locally; cost is negligible compared to APIs but adds to hosting if scaled.
+\end{itemize}
+
+\subsection{Weaknesses in Spending}
+\begin{enumerate}
+    \item \textbf{No caching}: Identical or repeated questions (or default-responses logic) still go through the full pipeline when they are not caught by the default-message check. No caching of LLM responses or TTS output for the same text.
+    \item \textbf{No tiering}: Every request uses the same model and TTS settings; there is no option to use a cheaper/faster model for simple queries or fallback when rate-limited.
+    \item \textbf{Redundant TTS}: If the same phrase appears in different conversations (e.g.\ error or fallback messages), it is re-synthesised every time. The default “API keys missing” and “I didn’t catch that” paths use pre-generated files only when those exact flows are hit; any other path always calls ElevenLabs.
+    \item \textbf{Whisper on every STS}: Every speech input is sent to Whisper; there is no short-audio or low-confidence path to avoid transcription cost.
+    \item \textbf{Multiple messages}: Cap of 3 messages per turn multiplies TTS and phoneme cost by up to 3 compared to a single-sentence reply.
+\end{enumerate}

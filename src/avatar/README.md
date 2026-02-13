@@ -7,6 +7,49 @@ Interactive talking avatar that represents your political party. Users ask quest
 - **User:** Types or speaks questions.
 - **Avatar:** Answers in line with the party’s positions, using only the content from `content/party_program.md`.
 
+## Model pipeline
+
+The system uses **OpenAI** (GPT) for responses, **OpenAI Whisper** for speech-to-text, **ElevenLabs** for text-to-speech, and **Rhubarb Lip-Sync** for lip-sync. The party’s positions come from `content/party_program.md`, which is injected into the LLM so the avatar only states what is in the program.
+
+The backend returns a **sequence of messages**. Each message has text, a facial expression, an animation, base64 audio, and lip-sync cues so the 3D avatar can speak and move in sync.
+
+### Workflow with text input
+
+1. **User input** – The user types a question in the chat.
+2. **Request** – The text is sent to the backend (`POST /tts`).
+3. **Default messages** – If the input matches a known case (e.g. empty, missing API keys), the backend may return pre-rendered intro or error messages from `audios/`.
+4. **LLM** – Otherwise the text is sent to OpenAI GPT with the party program as context. The model returns a JSON array of messages (max 3), each with `text`, `facialExpression`, and `animation`.
+5. **TTS** – Each message’s text is sent to ElevenLabs to generate speech; audio is written as `audios/message_N.mp3`.
+6. **Lip-sync** – Rhubarb Lip-Sync produces phoneme/viseme timings from the audio; the backend reads `audios/message_N.json` and attaches base64 audio + mouth cues to each message.
+7. **Response** – The frontend receives the message array and plays them in order; the avatar plays audio and drives mouth morphs from the lip-sync data.
+
+### Workflow with audio input
+
+1. **User input** – The user records with the microphone (browser `MediaRecorder`).
+2. **Request** – The recording is sent as base64 to the backend (`POST /sts`).
+3. **Speech-to-text** – The backend uses OpenAI Whisper to transcribe the audio to text.
+4. **Same as text path** – From step 3 onward, the flow is the same as for text: default messages or LLM → TTS → lip-sync → response.
+
+### Message shape
+
+Each message in the API response looks like:
+
+```json
+{
+  "text": "Answer text to be spoken.",
+  "facialExpression": "smile",
+  "animation": "TalkingOne",
+  "audio": "<base64-encoded MP3>",
+  "lipsync": { "mouthCues": [ { "start": 0.0, "end": 0.1, "value": "X" }, ... ] }
+}
+```
+
+- **text** – What the avatar says.
+- **facialExpression** – One of: smile, sad, angry, surprised, funnyFace, default.
+- **animation** – One of: Idle, TalkingOne, TalkingThree, SadIdle, Defeated, Angry, Surprised, DismissingGesture, ThoughtfulHeadShake.
+- **audio** – Base64 MP3 for playback in the browser.
+- **lipsync** – Mouth cues (visemes) used to drive the avatar’s mouth morph targets in sync with the audio.
+
 ## Layout
 
 ```

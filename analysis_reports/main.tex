@@ -1,0 +1,27 @@
+% Pipeline Analysis Report - Avatar backend pipeline
+\documentclass{article}
+\usepackage{packages}
+
+\begin{document}
+\import{./}{title}
+
+\frontmatter
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+\import{./Sections/}{Introduction}
+\import{./Sections/}{Pipeline_overview}
+\import{./Sections/}{Time_analysis}
+\import{./Sections/}{Spending_analysis}
+\import{./Sections/}{Bottlenecks}
+\import{./Sections/}{Conclusion}
+
+\newpage
+\printbibliography[heading = bibintoc, title = Bibliography]
+
+\addappendix
+\import{./Appendices/}{pipeline_appendix}
+
+\end{document}
