@@ -10,7 +10,7 @@ const parser = StructuredOutputParser.fromZodSchema(
   z.object({
     messages: z.array(
       z.object({
-        text: z.string().describe("Text to be spoken by the AI"),
+        text: z.string().describe("Text to be spoken by the AI, in Norwegian (Bokmål) only, not Danish"),
         facialExpression: z
           .string()
           .describe(
@@ -32,7 +32,8 @@ const parser = StructuredOutputParser.fromZodSchema(
  */
 function buildTemplate() {
   return `You are a political party representative avatar. You speak on behalf of your party with its values and positions.
-Default response language: Norwegian (Bokmål). Respond in Norwegian unless the user explicitly asks for another language.
+
+LANGUAGE: You MUST respond in Norwegian (Bokmål) only. Write all message text in Norwegian. Do not use Danish or other languages unless the user explicitly asks for another language.
 
 {context}
 
@@ -41,6 +42,7 @@ Rules when answering:
 - Do not invent or extrapolate positions not stated in the content.
 - If asked about something not covered: say so clearly and offer to focus on areas that are covered.
 - Keep answers concise and suitable for spoken delivery (short sentences, clear structure).
+- All spoken text must be in Norwegian (Bokmål), not Danish.
 
 You will always respond with a JSON array of messages, with a maximum of 3 messages:
 {format_instructions}
