@@ -57,6 +57,7 @@ export function Avatar(props) {
   const head = useRef();
   const mouth = useRef();
   const lerpMorphTarget = (target, value, speed = 0.1) => {
+    if (!scene?.traverse) return;
     scene.traverse((child) => {
       if (child.isSkinnedMesh && child.morphTargetDictionary) {
         const index = child.morphTargetDictionary[target];
@@ -77,6 +78,7 @@ export function Avatar(props) {
   const [audio, setAudio] = useState();
 
   useFrame(() => {
+    if (!scene) return;
     !setupMode &&
       morphTargets.forEach((key) => {
         const mapping = facialExpressions[facialExpression];
@@ -182,12 +184,16 @@ export function Avatar(props) {
     return () => clearTimeout(blinkTimeout);
   }, []);
 
+  const hasScene = scene != null;
   const isRpmFormat =
-    nodes.Hips &&
-    nodes.Wolf3D_Head &&
-    nodes.EyeLeft &&
-    nodes.EyeRight &&
+    hasScene &&
+    nodes?.Hips &&
+    nodes?.Wolf3D_Head?.geometry &&
+    nodes?.EyeLeft?.geometry &&
+    nodes?.EyeRight?.geometry &&
+    nodes?.Wolf3D_Body?.geometry &&
     materials?.Wolf3D_Skin;
+  if (!hasScene) return null;
   if (!isRpmFormat) {
     return (
       <group {...props} dispose={null} position={[0, -0.5, 0]}>
