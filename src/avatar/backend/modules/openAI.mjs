@@ -72,13 +72,12 @@ async function getParser() {
   return parser;
 }
 
-/** Invoke the chain. Use openAIChain() and parser from getOpenAIChain/getParser for dynamic party program. */
-async function openAIChainInvoke({ question }) {
+/** Invoke the chain with the current party program. */
+async function openAIChainInvoke({ question, format_instructions }) {
   const chain = await getOpenAIChain();
-  const p = await getParser();
   return chain.invoke({
     question,
-    format_instructions: p.getFormatInstructions(),
+    format_instructions: format_instructions || (await getParser()).getFormatInstructions(),
   });
 }
 
