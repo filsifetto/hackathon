@@ -1,3 +1,8 @@
+/**
+ * Party-aware LLM chain: loads content/party_program.md and injects it into the prompt
+ * so the avatar answers only according to the party's positions. Output is structured
+ * (text + facialExpression + animation) for the frontend.
+ */
 import { ChatOpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { StructuredOutputParser } from "langchain/output_parsers";

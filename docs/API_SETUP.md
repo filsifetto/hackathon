@@ -1,6 +1,7 @@
 # API Key Setup Guide
 
-This guide explains how to securely add and manage API keys in this project.
+This guide explains how to securely add and manage API keys in this project.  
+**When to use:** Before running the party avatar (backend needs OpenAI and ElevenLabs). For project overview and run steps, see the [main README](../README.md) and [avatar README](../src/avatar/README.md).
 
 ## Quick Start
 

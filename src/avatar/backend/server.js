@@ -1,3 +1,16 @@
+/**
+ * Party Avatar Backend
+ *
+ * Express server that powers the talking avatar: LLM (party-aware), TTS (ElevenLabs),
+ * lip-sync, and speech-to-text (Whisper). All responses are aligned with the party
+ * program (see content/party_program.md).
+ *
+ * Endpoints:
+ *   GET  /voices  – List ElevenLabs voices
+ *   POST /tts     – Text input → LLM response + TTS + lip-sync
+ *   POST /sts     – Speech input (base64 audio) → Whisper → same pipeline as /tts
+ */
+
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
@@ -16,6 +29,7 @@ app.use(express.json());
 app.use(cors());
 const port = process.env.PORT || 3000;
 
+// --- ElevenLabs voices (for frontend voice selection) ---
 app.get("/voices", async (req, res) => {
   try {
     res.send(await voice.getVoices(elevenLabsApiKey));
@@ -24,6 +38,7 @@ app.get("/voices", async (req, res) => {
   }
 });
 
+// --- Text-to-speech: user message → LLM (party program) → TTS + lip-sync ---
 app.post("/tts", async (req, res) => {
   const userMessage = await req.body.message;
   const defaultMessages = await sendDefaultMessages({ userMessage });
@@ -45,6 +60,7 @@ app.post("/tts", async (req, res) => {
   res.send({ messages: openAImessages });
 });
 
+// --- Speech-to-text: base64 audio → Whisper → same pipeline as /tts ---
 app.post("/sts", async (req, res) => {
   const base64Audio = req.body.audio;
   const audioData = Buffer.from(base64Audio, "base64");

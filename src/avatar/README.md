@@ -48,6 +48,8 @@ yarn dev
 - `OPENAI_MODEL` – e.g. `gpt-4o-mini`
 - `ELEVEN_LABS_API_KEY`, `ELEVEN_LABS_VOICE_ID`, `ELEVEN_LABS_MODEL_ID` – TTS
 
+For step-by-step API key setup and security practices, see the project-wide guide: **[docs/API_SETUP.md](../../docs/API_SETUP.md)**.
+
 **Optional:**
 
 - Rhubarb Lip-Sync: put the `rhubarb` binary in `src/avatar/backend/bin/` for lip-sync. Install [Rhubarb Lip-Sync](https://github.com/DanielSWolf/rhubarb-lip-sync/releases).
