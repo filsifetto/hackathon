@@ -6,6 +6,7 @@ import { HomePage } from "./pages/HomePage";
 import { EventsPage } from "./pages/EventsPage";
 import { AboutPage } from "./pages/AboutPage";
 import { ProgramPage } from "./pages/ProgramPage";
+import { CasePage } from "./pages/CasePage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/arrangementer" element={<EventsPage />} />
           <Route path="/om-oss" element={<AboutPage />} />
           <Route path="/partiprogram" element={<ProgramPage />} />
+          <Route path="/fanesaker/:slug" element={<CasePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </SiteLayout>

@@ -2,6 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { Link } from "react-router-dom";
 import { Scenario } from "../components/Scenario";
 import { ChatInterface } from "../components/ChatInterface";
+import { CasesCarousel } from "../components/CasesCarousel";
 
 const fanesaker = [
   {
@@ -69,6 +70,8 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      <CasesCarousel />
 
       <section className="seksjon chat-seksjon">
         <div className="container">

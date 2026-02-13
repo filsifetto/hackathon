@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760">
+  <defs>
+    <linearGradient id="bg2" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#071026"/>
+      <stop offset="100%" stop-color="#173d69"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="760" fill="url(#bg2)"/>
+  <rect x="120" y="170" width="960" height="440" rx="34" fill="#0a1d43" stroke="#6cf2ff" stroke-width="4"/>
+  <rect x="190" y="250" width="360" height="280" rx="24" fill="#193666"/>
+  <rect x="220" y="290" width="300" height="24" rx="12" fill="#7befff"/>
+  <rect x="220" y="336" width="220" height="18" rx="9" fill="#9cb6ff"/>
+  <rect x="220" y="374" width="250" height="18" rx="9" fill="#9cb6ff"/>
+  <rect x="220" y="412" width="180" height="18" rx="9" fill="#9cb6ff"/>
+  <circle cx="840" cy="330" r="90" fill="#203f76"/>
+  <path d="M800 330l30 32 62-70" stroke="#64ffd0" stroke-width="16" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="760" cy="470" r="26" fill="#6cf2ff"/>
+  <circle cx="840" cy="500" r="26" fill="#6cf2ff"/>
+  <circle cx="920" cy="470" r="26" fill="#6cf2ff"/>
+  <path d="M760 470h160" stroke="#64ffd0" stroke-width="8"/>
+  <text x="150" y="235" fill="#def0ff" font-size="44" font-family="Arial, sans-serif" font-weight="700">Digitalt demokrati</text>
+</svg>
