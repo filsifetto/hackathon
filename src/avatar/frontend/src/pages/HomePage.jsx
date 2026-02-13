@@ -10,7 +10,7 @@ const fanesaker = [
   },
   {
     tittel: "Kunstig intelligens i velferden",
-    tekst: "AI skal brukes for raskere helseoppfolging, bedre skoleverktoy og smartere kommunale tjenester.",
+    tekst: "AI skal brukes for raskere helseoppfølging, bedre skoleverktøy og smartere kommunale tjenester.",
   },
   {
     tittel: "Norske teknologijobber",
@@ -29,7 +29,7 @@ export function HomePage() {
             <p className="etikett">Stortingsvalget 2026</p>
             <h1 className="hovedtittel">Teknologi for folket</h1>
             <p className="ingress">
-              Teknologisk Folkeparti bygger et Norge der moderne teknologi gjor hverdagen enklere, tryggere og mer rettferdig for alle.
+              Teknologisk Folkeparti bygger et Norge der moderne teknologi gjør hverdagen enklere, tryggere og mer rettferdig for alle.
             </p>
             <div className="knappegruppe">
               <Link to="/partiprogram" className="knapp knapp-primar">
@@ -57,7 +57,7 @@ export function HomePage() {
 
       <section className="seksjon">
         <div className="container">
-          <p className="etikett">Vare fanesaker</p>
+          <p className="etikett">Våre fanesaker</p>
           <h2 className="seksjonstittel">En teknologisk politikk med mennesket i sentrum</h2>
           <div className="kort-rutenett tre">
             {fanesaker.map((sak, indeks) => (
@@ -72,8 +72,8 @@ export function HomePage() {
 
       <section className="seksjon chat-seksjon">
         <div className="container">
-          <p className="etikett">Still oss sporsmal</p>
-          <h2 className="seksjonstittel">Snakk med var digitale representant</h2>
+          <p className="etikett">Still oss spørsmål</p>
+          <h2 className="seksjonstittel">Snakk med vår digitale representant</h2>
           <ChatInterface />
         </div>
       </section>

@@ -3,32 +3,32 @@ const program = [
     overskrift: "1. Digital infrastruktur",
     punkter: [
       "Fiber og 5G med full dekning i hele landet innen 2030.",
-      "Sikker nasjonal skylosning for offentlige data.",
+      "Sikker nasjonal skyløsning for offentlige data.",
       "Raskere digital tilgang til helse- og velferdstjenester.",
     ],
   },
   {
     overskrift: "2. Utdanning og kompetanse",
     punkter: [
-      "Programmering og digital etikk inn i grunnopplaeringen.",
-      "Nasjonalt kompetanseloft for AI i arbeidslivet.",
-      "Teknologifaglige stipend for laerere og fagarbeidere.",
+      "Programmering og digital etikk inn i grunnopplæringen.",
+      "Nasjonalt kompetanseløft for AI i arbeidslivet.",
+      "Teknologifaglige stipend for lærere og fagarbeidere.",
     ],
   },
   {
     overskrift: "3. Demokrati og personvern",
     punkter: [
-      "Styrket personvern og tydelige grenser for overvaking.",
-      "Apen kildekode i offentlig sektor der det er mulig.",
-      "Algoritmisk innsyn i beslutningsstotte brukt av staten.",
+      "Styrket personvern og tydelige grenser for overvåking.",
+      "Åpen kildekode i offentlig sektor der det er mulig.",
+      "Algoritmisk innsyn i beslutningsstøtte brukt av staten.",
     ],
   },
   {
-    overskrift: "4. Gronn teknologi",
+    overskrift: "4. Grønn teknologi",
     punkter: [
       "Skatteinsentiv for energieffektive datasentre.",
-      "Smart stromstyring for husholdninger og industri.",
-      "Norske pilotprosjekter for sirkulaer teknologiproduksjon.",
+      "Smart strømstyring for husholdninger og industri.",
+      "Norske pilotprosjekter for sirkulær teknologiproduksjon.",
     ],
   },
 ];
@@ -38,9 +38,9 @@ export function ProgramPage() {
     <section className="seksjon">
       <div className="container">
         <p className="etikett">Partiprogram</p>
-        <h1 className="seksjonstittel">Vare politiske prioriteringer</h1>
+        <h1 className="seksjonstittel">Våre politiske prioriteringer</h1>
         <p className="ingress smal">
-          Programmet vart er bygd rundt en enkel ide: Teknologi skal brukes til a lose samfunnsutfordringer, ikke skape nye.
+          Programmet vårt er bygd rundt en enkel idé: Teknologi skal brukes til å løse samfunnsutfordringer, ikke skape nye.
         </p>
 
         <div className="kort-rutenett to">

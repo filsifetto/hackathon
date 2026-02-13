@@ -21,15 +21,15 @@ export const ChatInterface = ({ hidden }) => {
   return (
     <div className="chat-card inngang inngang-1">
       <div className="chat-header">
-        <h3>Sporsmalslinje</h3>
+        <h3>Spørsmålslinje</h3>
         <p>
           {recording
             ? "Tar opp lyd..."
             : loading
             ? "Representanten forbereder svar..."
             : message
-            ? "Representanten svarer na"
-            : "Still et sporsmal om partiets politikk"}
+            ? "Representanten svarer nå"
+            : "Still et spørsmål om partiets politikk"}
         </p>
       </div>
 

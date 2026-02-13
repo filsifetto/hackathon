@@ -10,26 +10,26 @@ export function AboutPage() {
         </p>
 
         <div className="panel inngang inngang-1">
-          <h3>Var visjon</h3>
+          <h3>Vår visjon</h3>
           <p>
-            Norge skal vaere verdens mest inkluderende digitale samfunn. Det betyr at ny teknologi skal skape trygghet,
+            Norge skal være verdens mest inkluderende digitale samfunn. Det betyr at ny teknologi skal skape trygghet,
             tilgjengelighet og muligheter for alle aldersgrupper.
           </p>
         </div>
 
         <div className="panel inngang inngang-2">
-          <h3>Var arbeidsmetode</h3>
+          <h3>Vår arbeidsmetode</h3>
           <p>
-            Vi kombinerer politikkutvikling med fagkompetanse fra teknologi, helse, utdanning og naeringsliv. Beslutninger
-            skal vaere kunnskapsbaserte, etterprovbare og transparente.
+            Vi kombinerer politikkutvikling med fagkompetanse fra teknologi, helse, utdanning og næringsliv. Beslutninger
+            skal være kunnskapsbaserte, etterprøvbare og transparente.
           </p>
         </div>
 
         <div className="panel inngang inngang-3">
-          <h3>Var organisasjon</h3>
+          <h3>Vår organisasjon</h3>
           <p>
-            Partiet bestar av lokale lag i hele landet, digitale frivillige nettverk og en nasjonal programgruppe som
-            oppdaterer politikk fortlopende i takt med teknologisk utvikling.
+            Partiet består av lokale lag i hele landet, digitale frivillige nettverk og en nasjonal programgruppe som
+            oppdaterer politikk fortløpende i takt med teknologisk utvikling.
           </p>
         </div>
       </div>

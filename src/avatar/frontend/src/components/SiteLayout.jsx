@@ -12,7 +12,7 @@ export function SiteLayout({ children }) {
     <div className="site-shell">
       <header className="hovednavigasjon">
         <div className="container nav-innhold">
-          <Link to="/" className="logo-gruppe" aria-label="Ga til forsiden">
+          <Link to="/" className="logo-gruppe" aria-label="Gå til forsiden">
             <span className="logo-brikke">TF</span>
             <div>
               <p className="logo-tittel">Teknologisk Folkeparti</p>
