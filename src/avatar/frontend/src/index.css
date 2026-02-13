@@ -1,18 +1,531 @@
+@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Space+Grotesk:wght@400;500;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   --leva-sizes-rootWidth: 340px;
+  --bg-deep: #05081a;
+  --bg-mid: #0b1230;
+  --bg-soft: #111b3f;
+  --panel: rgba(13, 22, 55, 0.66);
+  --panel-border: rgba(110, 189, 255, 0.32);
+  --text: #e8f0ff;
+  --text-muted: #a9bddf;
+  --cyan: #3de4ff;
+  --violet: #787dff;
+  --mint: #63ffc8;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
 #root {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 100%;
 }
 
 body {
   margin: 0;
-  background-color: #060606;
-  background-image: linear-gradient(19deg, #060606 0%, #ddd6f3 100%);
+  color: var(--text);
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(61, 228, 255, 0.2), transparent 32%),
+    radial-gradient(circle at 88% 8%, rgba(120, 125, 255, 0.24), transparent 36%),
+    linear-gradient(180deg, var(--bg-mid), var(--bg-deep));
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Chakra Petch", "Space Grotesk", sans-serif;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  width: min(1180px, calc(100% - 2.1rem));
+  margin: 0 auto;
+}
+
+.hovednavigasjon {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(129, 206, 255, 0.25);
+  background: rgba(5, 8, 26, 0.78);
+}
+
+.nav-innhold {
+  min-height: 4.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.logo-gruppe {
+  display: flex;
+  align-items: center;
+  gap: 0.76rem;
+}
+
+.logo-brikke {
+  width: 2.55rem;
+  height: 2.55rem;
+  border-radius: 0.7rem;
+  display: grid;
+  place-items: center;
+  font-family: "Chakra Petch", sans-serif;
+  font-weight: 700;
+  color: #001220;
+  background: linear-gradient(135deg, var(--mint), var(--cyan));
+  box-shadow: 0 0 0 1px rgba(99, 255, 200, 0.25), 0 0 22px rgba(61, 228, 255, 0.35);
+}
+
+.logo-tittel {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text);
+  font-family: "Chakra Petch", sans-serif;
+}
+
+.logo-slagord {
+  margin: 0;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.lenkemeny {
+  display: none;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.menylenke {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-muted);
+  padding: 0.52rem 0.68rem;
+  border-radius: 0.5rem;
+  transition: 0.2s ease;
+}
+
+.menylenke:hover {
+  color: var(--text);
+  background: rgba(117, 195, 255, 0.1);
+}
+
+.menylenke.aktiv {
+  color: #001322;
+  background: linear-gradient(90deg, var(--mint), var(--cyan));
+  box-shadow: 0 0 0 1px rgba(99, 255, 200, 0.25);
+}
+
+.knapp {
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.62rem;
+  padding: 0.68rem 0.95rem;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: 700;
+}
+
+.knapp-primar {
+  background: linear-gradient(95deg, var(--mint), var(--cyan));
+  color: #001220;
+  box-shadow: 0 0 0 1px rgba(99, 255, 200, 0.3), 0 0 22px rgba(61, 228, 255, 0.28);
+}
+
+.knapp-sekundar {
+  border: 1px solid rgba(123, 196, 255, 0.35);
+  color: var(--text);
+  background: rgba(12, 20, 49, 0.58);
+}
+
+.desktop-knapp {
+  display: none;
+}
+
+.mobil-meny {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding: 0 0 0.7rem;
+}
+
+.mobil-meny .menylenke {
+  white-space: nowrap;
+  border: 1px solid rgba(117, 194, 255, 0.2);
+  background: rgba(10, 16, 42, 0.58);
+}
+
+.helt-seksjon {
+  position: relative;
+  padding: 3rem 0 2.7rem;
+  overflow: hidden;
+}
+
+.bakgrunn-glod {
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  filter: blur(56px);
+  pointer-events: none;
+}
+
+.bakgrunn-glod-venstre {
+  left: -80px;
+  top: -70px;
+  background: rgba(61, 228, 255, 0.23);
+}
+
+.bakgrunn-glod-hoyre {
+  right: -65px;
+  top: 15px;
+  background: rgba(120, 125, 255, 0.25);
+}
+
+.helt-grid {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+}
+
+.tonet-kort,
+.panel,
+.chat-card {
+  border-radius: 1rem;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  box-shadow: inset 0 1px 0 rgba(180, 228, 255, 0.12), 0 22px 60px -36px rgba(32, 79, 167, 0.65);
+}
+
+.tonet-kort {
+  padding: 1.25rem;
+}
+
+.hovedtittel {
+  margin-top: 0.4rem;
+  font-size: clamp(2rem, 5.4vw, 3.45rem);
+  line-height: 1.06;
+}
+
+.etikett {
+  margin: 0;
+  color: var(--mint);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+}
+
+.ingress {
+  margin: 1rem 0 0;
+  color: var(--text-muted);
+  line-height: 1.62;
+  font-size: 1.03rem;
+}
+
+.ingress.smal {
+  max-width: 65ch;
+}
+
+.knappegruppe {
+  margin-top: 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.avatar-kort {
+  overflow: hidden;
+  padding: 0;
+}
+
+.avatar-hode {
+  padding: 0.82rem 1rem;
+  border-bottom: 1px solid rgba(117, 194, 255, 0.25);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.avatar-hode p {
+  margin: 0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.avatar-hode span {
+  color: var(--mint);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.avatar-flate {
+  height: 345px;
+}
+
+.seksjon {
+  padding: 2.2rem 0;
+}
+
+.seksjonstittel {
+  margin-top: 0.5rem;
+  font-size: clamp(1.6rem, 3.7vw, 2.5rem);
+}
+
+.kort-rutenett {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.panel {
+  padding: 1.1rem;
+}
+
+.panel h3 {
+  font-size: 1.35rem;
+}
+
+.panel p,
+.panel li {
+  margin: 0.62rem 0 0;
+  color: var(--text-muted);
+  line-height: 1.56;
+}
+
+.program-kort ul {
+  margin: 0.52rem 0 0;
+  padding-left: 1rem;
+}
+
+.arr-dato {
+  margin: 0;
+  font-size: 0.73rem;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--mint);
+  font-weight: 700;
+}
+
+.arr-sted {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.smal-kolonne {
+  width: min(900px, calc(100% - 2.1rem));
+}
+
+.chat-seksjon {
+  padding-top: 1.4rem;
+}
+
+.chat-card {
+  margin-top: 1.2rem;
+  padding: 1rem;
+}
+
+.chat-header h3 {
+  font-size: 1.2rem;
+}
+
+.chat-header p {
+  margin: 0.45rem 0 0;
+  color: var(--text-muted);
+}
+
+.chat-controls {
+  margin-top: 0.9rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.chat-input {
+  width: 100%;
+  border-radius: 0.68rem;
+  border: 1px solid rgba(117, 194, 255, 0.35);
+  background: rgba(7, 12, 31, 0.75);
+  color: var(--text);
+  padding: 0.75rem 0.85rem;
+  font-size: 0.96rem;
+}
+
+.chat-input::placeholder {
+  color: #8aa4cf;
+}
+
+.chat-input:focus {
+  outline: 2px solid rgba(61, 228, 255, 0.3);
+  border-color: var(--cyan);
+}
+
+.mic-button,
+.send-button {
+  border: 0;
+  border-radius: 0.62rem;
+  padding: 0.74rem 0.85rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mic-button {
+  background: rgba(117, 194, 255, 0.14);
+  color: var(--text);
+}
+
+.mic-button.is-recording {
+  background: #eb3355;
+  color: white;
+}
+
+.send-button {
+  background: linear-gradient(90deg, var(--violet), var(--cyan));
+  color: white;
+}
+
+.mic-button:disabled,
+.send-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sidefot {
+  margin-top: auto;
+  padding: 2.1rem 0;
+  border-top: 1px solid rgba(117, 194, 255, 0.25);
+  background: rgba(4, 8, 22, 0.85);
+}
+
+.sidefot-rutenett {
+  display: grid;
+  gap: 1rem;
+}
+
+.sidefot-navn {
+  margin: 0;
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 1.05rem;
+}
+
+.sidefot-overskrift {
+  margin: 0;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--mint);
+  font-weight: 700;
+}
+
+.sidefot-tekst,
+.sidefot-lenke {
+  margin: 0.4rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.sidefot-lenker {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+}
+
+.inngang {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: gliInn 0.64s ease forwards;
+}
+
+.inngang-1 {
+  animation-delay: 0.08s;
+}
+
+.inngang-2 {
+  animation-delay: 0.18s;
+}
+
+.inngang-3 {
+  animation-delay: 0.28s;
+}
+
+@keyframes gliInn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 880px) {
+  .lenkemeny {
+    display: flex;
+  }
+
+  .desktop-knapp {
+    display: inline-flex;
+  }
+
+  .mobil-meny {
+    display: none;
+  }
+
+  .helt-grid {
+    grid-template-columns: 1.06fr 0.94fr;
+    align-items: start;
+  }
+
+  .avatar-flate {
+    height: 430px;
+  }
+
+  .kort-rutenett.to {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kort-rutenett.tre {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .chat-controls {
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+  }
+
+  .sidefot-rutenett {
+    grid-template-columns: 1.2fr 1fr 1fr;
+  }
 }

@@ -1,23 +1,27 @@
-/**
- * Avatar app root: chat UI + 3D canvas with party representative.
- * ChatInterface talks to the backend (TTS/STS); Scenario renders the avatar and animations.
- */
 import { Loader } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
 import { Leva } from "leva";
-import { Scenario } from "./components/Scenario";
-import { ChatInterface } from "./components/ChatInterface";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { SiteLayout } from "./components/SiteLayout";
+import { HomePage } from "./pages/HomePage";
+import { EventsPage } from "./pages/EventsPage";
+import { AboutPage } from "./pages/AboutPage";
+import { ProgramPage } from "./pages/ProgramPage";
 
 function App() {
   return (
-    <>
+    <BrowserRouter>
       <Loader />
       <Leva collapsed hidden />
-      <ChatInterface />
-      <Canvas shadows camera={{ position: [0, 0, 0], fov: 10 }}>
-        <Scenario />
-      </Canvas>
-    </>
+      <SiteLayout>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/arrangementer" element={<EventsPage />} />
+          <Route path="/om-oss" element={<AboutPage />} />
+          <Route path="/partiprogram" element={<ProgramPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </SiteLayout>
+    </BrowserRouter>
   );
 }
 
