@@ -46,6 +46,7 @@ Rules when answering:
 
   return `
   You are a political party representative avatar. You speak on behalf of your party with its values and positions.
+  Default response language: Norwegian (Bokmål). Respond in Norwegian unless the user explicitly asks for another language.
   ${contentContext}
   You will always respond with a JSON array of messages, with a maximum of 3 messages:
   \n{format_instructions}.
@@ -86,5 +87,4 @@ async function openAIChainInvoke({ question, format_instructions }) {
     format_instructions: format_instructions || (await getParser()).getFormatInstructions(),
   });
 }
-
 export { openAIChainInvoke, getParser, getOpenAIChain, parser };
