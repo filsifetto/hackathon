@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:mx="http://www.mxgraph.io/" viewBox="0 0 720 420" width="720" height="420">
+  <defs>
+    <style type="text/css">
+      .box { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; }
+      .box-api { fill: #fff3e0; stroke: #e65100; stroke-width: 2; }
+      .box-ext { fill: #e8f5e9; stroke: #2e7d32; stroke-width: 2; }
+      .box-data { fill: #fce4ec; stroke: #c2185b; stroke-width: 2; }
+      .text { font: 12px sans-serif; fill: #333; }
+      .text-small { font: 10px sans-serif; fill: #555; }
+      .arrow { fill: none; stroke: #424242; stroke-width: 1.5; marker-end: url(#arrowhead); }
+      .arrow-label { font: 9px sans-serif; fill: #616161; }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#424242"/>
+    </marker>
+  </defs>
+  <!-- User -->
+  <rect x="20" y="160" width="80" height="100" rx="6" class="box"/>
+  <text x="60" y="205" text-anchor="middle" class="text">User</text>
+  <text x="60" y="222" text-anchor="middle" class="text-small">Text / Mic</text>
+  <!-- Frontend -->
+  <rect x="140" y="140" width="100" height="140" rx="6" class="box"/>
+  <text x="190" y="195" text-anchor="middle" class="text">Frontend</text>
+  <text x="190" y="212" text-anchor="middle" class="text-small">React</text>
+  <text x="190" y="227" text-anchor="middle" class="text-small">Three.js</text>
+  <text x="190" y="242" text-anchor="middle" class="text-small">useSpeech</text>
+  <text x="190" y="262" text-anchor="middle" class="text-small">/tts, /sts</text>
+  <!-- Backend -->
+  <rect x="280" y="160" width="100" height="100" rx="6" class="box-api"/>
+  <text x="330" y="205" text-anchor="middle" class="text">Backend</text>
+  <text x="330" y="222" text-anchor="middle" class="text-small">Express</text>
+  <!-- Party program -->
+  <rect x="280" y="20" width="100" height="50" rx="6" class="box-data"/>
+  <text x="330" y="48" text-anchor="middle" class="text">party_program.md</text>
+  <text x="330" y="63" text-anchor="middle" class="text-small">context</text>
+  <!-- Whisper -->
+  <rect x="420" y="280" width="90" height="50" rx="6" class="box-ext"/>
+  <text x="465" y="308" text-anchor="middle" class="text">Whisper</text>
+  <text x="465" y="323" text-anchor="middle" class="text-small">audio ’ text</text>
+  <!-- OpenAI GPT -->
+  <rect x="420" y="160" width="90" height="50" rx="6" class="box-ext"/>
+  <text x="465" y="188" text-anchor="middle" class="text">OpenAI GPT</text>
+  <text x="465" y="203" text-anchor="middle" class="text-small">messages</text>
+  <!-- ElevenLabs -->
+  <rect x="540" y="160" width="90" height="50" rx="6" class="box-ext"/>
+  <text x="585" y="188" text-anchor="middle" class="text">ElevenLabs</text>
+  <text x="585" y="203" text-anchor="middle" class="text-small">TTS</text>
+  <!-- Rhubarb -->
+  <rect x="540" y="280" width="90" height="50" rx="6" class="box-ext"/>
+  <text x="585" y="308" text-anchor="middle" class="text">Rhubarb</text>
+  <text x="585" y="323" text-anchor="middle" class="text-small">lip-sync</text>
+  <!-- Avatar -->
+  <rect x="660" y="170" width="50" height="80" rx="6" class="box"/>
+  <text x="685" y="210" text-anchor="middle" class="text">Avatar</text>
+  <text x="685" y="232" text-anchor="middle" class="text-small">3D</text>
+  <!-- Arrows: User -> Frontend -->
+  <path d="M 100 210 L 138 210" class="arrow"/>
+  <text x="118" y="205" text-anchor="middle" class="arrow-label">text / audio</text>
+  <!-- Frontend -> Backend -->
+  <path d="M 240 210 L 278 210" class="arrow"/>
+  <text x="258" y="205" text-anchor="middle" class="arrow-label">POST</text>
+  <!-- Backend -> Whisper (for /sts) -->
+  <path d="M 330 260 L 330 278 L 465 278" class="arrow"/>
+  <text x="380" y="273" text-anchor="middle" class="arrow-label">/sts</text>
+  <!-- Party program -> Backend -->
+  <path d="M 330 70 L 330 158" class="arrow"/>
+  <text x="340" y="118" text-anchor="middle" class="arrow-label">context</text>
+  <!-- Backend -> OpenAI -->
+  <path d="M 380 210 L 418 185" class="arrow"/>
+  <text x="395" y="195" text-anchor="middle" class="arrow-label">question</text>
+  <!-- OpenAI -> ElevenLabs -->
+  <path d="M 510 185 L 538 185" class="arrow"/>
+  <text x="522" y="180" text-anchor="middle" class="arrow-label">text</text>
+  <!-- ElevenLabs -> Rhubarb (implicit via backend) -->
+  <path d="M 585 210 L 585 278" class="arrow"/>
+  <text x="595" y="248" text-anchor="middle" class="arrow-label">audio</text>
+  <!-- Backend -> Frontend (response) -->
+  <path d="M 280 210 L 138 210" class="arrow"/>
+  <path d="M 138 210 L 140 210" class="arrow"/>
+  <text x="205" y="218" text-anchor="middle" class="arrow-label">messages</text>
+  <!-- Frontend -> Avatar -->
+  <path d="M 240 210 L 658 210" class="arrow"/>
+  <text x="448" y="205" text-anchor="middle" class="arrow-label">play</text>
+  <!-- Whisper -> Backend (text back) -->
+  <path d="M 465 280 L 330 260" class="arrow"/>
+  <text x="390" y="268" text-anchor="middle" class="arrow-label">text</text>
+</svg>
