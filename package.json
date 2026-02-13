@@ -1,0 +1,11 @@
+{
+  "name": "hackathon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Political party project – platform and party representative avatar",
+  "scripts": {
+    "avatar:backend": "cd src/avatar/backend && yarn dev",
+    "avatar:frontend": "cd src/avatar/frontend && yarn dev",
+    "avatar:install": "cd src/avatar/backend && yarn install && cd ../frontend && yarn install"
+  }
+}
