@@ -1,6 +1,13 @@
 # Party representative avatar
 
-Interactive talking avatar that represents your political party. Users ask questions; the avatar answers using **situational awareness** from the party program.
+A **digital spokesperson** for a political party: an interactive 3D avatar that answers questions in real time using only the party’s own program. Users type or speak; the avatar replies with clear, on-message answers and natural speech with lip-sync.
+
+## Vision
+
+- **Always on, always consistent** – Citizens and voters can talk to the party anytime. The avatar speaks only from `content/party_program.md`, so it never invents positions or drifts off-message.
+- **One source of truth** – Update the party program in one place; the avatar’s answers follow. No separate copy for “chat”, “FAQ”, or “representative script”.
+- **Inclusive and accessible** – Support both text (for quiet environments or accessibility) and voice (for a more natural, human conversation).
+- **Transparent and controllable** – Parties own the content and the tone. The system is a pipeline (LLM + TTS + lip-sync) you can run yourself and adapt to your campaign or organisation.
 
 ## Product goal
 
