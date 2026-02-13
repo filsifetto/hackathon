@@ -1,6 +1,8 @@
 import { CameraControls, Environment } from "@react-three/drei";
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { Avatar } from "./Avatar";
+import { AvatarErrorBoundary } from "./AvatarErrorBoundary";
+import { PlaceholderAvatar } from "./PlaceholderAvatar";
 
 export const Scenario = () => {
   const cameraControls = useRef();
@@ -11,7 +13,11 @@ export const Scenario = () => {
     <>
       <CameraControls ref={cameraControls} />
       <Environment preset="sunset" />
-      <Avatar />
+      <Suspense fallback={<PlaceholderAvatar />}>
+        <AvatarErrorBoundary>
+          <Avatar />
+        </AvatarErrorBoundary>
+      </Suspense>
     </>
   );
 };
