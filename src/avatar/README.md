@@ -73,7 +73,7 @@ The app expects:
 If you don’t have `avatar.glb` yet:
 
 - Create one at [Ready Player Me](https://readyplayer.me/), export as GLB, and put it in `src/avatar/frontend/public/models/avatar.glb`, or  
-- Copy it from the original `talking-avatar-with-ai` repo if you have it locally.
+- Or clone [talking-avatar-with-ai](https://github.com/asanchezyali/talking-avatar-with-ai) and copy `avatar.glb` from there if you have it.
 
 ## Running from repo root
 
@@ -89,4 +89,4 @@ cd src/avatar/frontend && yarn install && yarn dev
 
 ## Subrepo note
 
-This code was extracted from the `talking-avatar-with-ai` subrepo. The nested `.git` there is unchanged; all development happens in `src/avatar/`. The party-aware behaviour is added via `content/party_program.md` and `backend/modules/openAI.mjs`.
+This code was extracted from [talking-avatar-with-ai](https://github.com/asanchezyali/talking-avatar-with-ai). All development happens in `src/avatar/`. The party-aware behaviour is added via `content/party_program.md` and `backend/modules/openAI.mjs`.
