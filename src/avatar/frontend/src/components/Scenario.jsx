@@ -4,13 +4,15 @@ import { Avatar } from "./Avatar";
 
 export const Scenario = () => {
   const cameraControls = useRef();
+
   useEffect(() => {
-    cameraControls.current.setLookAt(0, 2.2, 5, 0, 1.0, 0, true);
+    cameraControls.current.setLookAt(0, 2.0, 4.3, 0, 1.05, 0, true);
   }, []);
+
   return (
     <>
       <CameraControls ref={cameraControls} />
-      <Environment preset="sunset" />
+      <Environment preset="city" />
       <Avatar />
     </>
   );

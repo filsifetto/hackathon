@@ -1,56 +1,51 @@
 import { useRef } from "react";
 import { useSpeech } from "../hooks/useSpeech";
 
-export const ChatInterface = ({ hidden, ...props }) => {
+export const ChatInterface = ({ hidden }) => {
   const input = useRef();
   const { tts, loading, message, startRecording, stopRecording, recording } = useSpeech();
 
   const sendMessage = () => {
-    const text = input.current.value;
-    if (!loading && !message) {
-      tts(text);
-      input.current.value = "";
+    const text = input.current?.value?.trim();
+    if (!text || loading || message) {
+      return;
     }
+    tts(text);
+    input.current.value = "";
   };
+
   if (hidden) {
     return null;
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 z-10 flex justify-between p-4 flex-col pointer-events-none">
-      <div className="self-start backdrop-blur-md bg-white bg-opacity-50 p-4 rounded-lg">
-        <h1 className="font-black text-xl text-gray-700">Party representative</h1>
-        <p className="text-gray-600">
-          {loading ? "Loading..." : "Ask about our party's positions. Type a message or use the microphone."}
+    <div className="chat-card reveal reveal-1">
+      <div className="chat-header">
+        <h3>Sporsmalslinje</h3>
+        <p>
+          {recording
+            ? "Tar opp lyd..."
+            : loading
+            ? "Representanten forbereder svar..."
+            : message
+            ? "Representanten svarer na"
+            : "Still et sporsmal om partiets politikk"}
         </p>
       </div>
-      <div className="w-full flex flex-col items-end justify-center gap-4"></div>
-      <div className="flex items-center gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
+
+      <div className="chat-controls">
         <button
           onClick={recording ? stopRecording : startRecording}
-          className={`bg-gray-500 hover:bg-gray-600 text-white p-4 px-4 font-semibold uppercase rounded-md ${
-            recording ? "bg-red-500 hover:bg-red-600" : ""
-          } ${loading || message ? "cursor-not-allowed opacity-30" : ""}`}
+          disabled={loading || !!message}
+          className={`mic-button ${recording ? "is-recording" : ""}`}
+          aria-label={recording ? "Stopp opptak" : "Start opptak"}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z"
-            />
-          </svg>
+          {recording ? "Stopp" : "Mikrofon"}
         </button>
 
         <input
-          className="w-full placeholder:text-gray-800 placeholder:italic p-4 rounded-md bg-opacity-50 bg-white backdrop-blur-md"
-          placeholder="Ask about our positions..."
+          className="chat-input"
+          placeholder="Eksempel: Hvordan vil dere styrke skolen?"
           ref={input}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -58,13 +53,8 @@ export const ChatInterface = ({ hidden, ...props }) => {
             }
           }}
         />
-        <button
-          disabled={loading || message}
-          onClick={sendMessage}
-          className={`bg-gray-500 hover:bg-gray-600 text-white p-4 px-10 font-semibold uppercase rounded-md ${
-            loading || message ? "cursor-not-allowed opacity-30" : ""
-          }`}
-        >
+
+        <button disabled={loading || !!message} onClick={sendMessage} className="send-button">
           Send
         </button>
       </div>

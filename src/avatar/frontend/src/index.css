@@ -1,18 +1,457 @@
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Source+Sans+3:wght@400;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   --leva-sizes-rootWidth: 340px;
+  --campaign-navy: #132a44;
+  --campaign-red: #c23b32;
+  --campaign-cream: #f4f1ea;
+  --campaign-ink: #162332;
+  --campaign-muted: #4b5b6d;
+  --campaign-gold: #d5b269;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
 #root {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 100%;
 }
 
 body {
   margin: 0;
-  background-color: #060606;
-  background-image: linear-gradient(19deg, #060606 0%, #ddd6f3 100%);
+  color: var(--campaign-ink);
+  background: var(--campaign-cream);
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+h1,
+h2,
+h3,
+.brand-title {
+  font-family: "Merriweather", Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.campaign-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 10% -5%, rgba(194, 59, 50, 0.2), transparent 35%),
+    radial-gradient(circle at 95% 0%, rgba(19, 42, 68, 0.18), transparent 38%),
+    var(--campaign-cream);
+}
+
+.campaign-shell {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.campaign-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(19, 42, 68, 0.94);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(8px);
+}
+
+.nav-inner {
+  min-height: 4.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: white;
+}
+
+.brand-mark {
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 0.5rem;
+  display: grid;
+  place-items: center;
+  background: var(--campaign-red);
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.1;
+}
+
+.brand-subtitle {
+  margin: 0;
+  font-size: 0.63rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.desktop-links {
+  display: none;
+  align-items: center;
+  gap: 1.5rem;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.desktop-links a:hover {
+  color: white;
+}
+
+.cta-link {
+  display: none;
+  background: var(--campaign-red);
+  color: white;
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-section {
+  padding: 2.8rem 0 3.2rem;
+}
+
+.hero-grid {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.hero-copy h1 {
+  margin: 0.3rem 0 0;
+  font-size: clamp(2rem, 5.2vw, 3.6rem);
+  line-height: 1.1;
+  color: var(--campaign-navy);
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  font-size: 0.71rem;
+  color: var(--campaign-red);
+}
+
+.lead {
+  margin: 1rem 0 0;
+  color: var(--campaign-muted);
+  font-size: 1.1rem;
+  line-height: 1.55;
+  max-width: 60ch;
+}
+
+.hero-actions {
+  margin-top: 1.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  border-radius: 0.55rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.btn-primary {
+  background: var(--campaign-red);
+  color: white;
+}
+
+.btn-secondary {
+  border: 1px solid rgba(19, 42, 68, 0.26);
+  color: var(--campaign-navy);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.avatar-panel {
+  border-radius: 1rem;
+  border: 1px solid rgba(19, 42, 68, 0.14);
+  background: linear-gradient(170deg, #ffffff 0%, #eef2f7 100%);
+  box-shadow: 0 30px 70px -45px rgba(19, 42, 68, 0.65);
+  overflow: hidden;
+}
+
+.avatar-panel-top {
+  padding: 0.75rem 0.95rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, var(--campaign-navy), #1b3f66);
+}
+
+.panel-label {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  font-size: 0.66rem;
+}
+
+.panel-status {
+  margin: 0;
+  color: var(--campaign-gold);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-size: 0.66rem;
+}
+
+.avatar-canvas-wrap {
+  height: 330px;
+}
+
+.issues-section,
+.events-section,
+.chat-section {
+  padding: 2.9rem 0;
+}
+
+.issues-section h2,
+.events-section h2,
+.chat-section h2 {
+  margin: 0.5rem 0 0;
+  color: var(--campaign-navy);
+  font-size: clamp(1.7rem, 4.5vw, 2.5rem);
+}
+
+.issue-grid {
+  margin-top: 1.4rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.issue-card {
+  border-radius: 0.9rem;
+  padding: 1.15rem;
+  border: 1px solid rgba(19, 42, 68, 0.12);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.issue-card h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--campaign-navy);
+}
+
+.issue-card p {
+  margin: 0.55rem 0 0;
+  color: var(--campaign-muted);
+}
+
+.quote-section {
+  padding: 2.9rem 0;
+  background: linear-gradient(180deg, var(--campaign-navy) 0%, #0f243a 100%);
+  color: white;
+}
+
+.quote-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.candidate-card,
+.candidate-quote {
+  border-radius: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1.25rem;
+}
+
+.candidate-card .eyebrow {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.candidate-card h3 {
+  margin: 0.45rem 0 0;
+  font-size: 1.55rem;
+}
+
+.candidate-card p {
+  margin: 0.65rem 0 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.candidate-quote {
+  margin: 0;
+  font-family: "Merriweather", Georgia, serif;
+  font-size: clamp(1.2rem, 2.3vw, 1.6rem);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.event-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.2rem 0 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.event-list li {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(19, 42, 68, 0.14);
+  padding: 0.85rem 0.95rem;
+  background: white;
+  color: var(--campaign-ink);
+  font-weight: 600;
+}
+
+.chat-card {
+  margin-top: 1.2rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(19, 42, 68, 0.15);
+  background: white;
+  box-shadow: 0 24px 60px -45px rgba(19, 42, 68, 0.55);
+  padding: 1rem;
+}
+
+.chat-header h3 {
+  margin: 0;
+  color: var(--campaign-navy);
+}
+
+.chat-header p {
+  margin: 0.45rem 0 0;
+  color: var(--campaign-muted);
+}
+
+.chat-controls {
+  margin-top: 0.9rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.chat-input {
+  width: 100%;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(19, 42, 68, 0.2);
+  padding: 0.7rem 0.8rem;
+  font-size: 0.95rem;
+}
+
+.chat-input:focus {
+  outline: 2px solid rgba(194, 59, 50, 0.2);
+  border-color: var(--campaign-red);
+}
+
+.mic-button,
+.send-button {
+  border: 0;
+  border-radius: 0.55rem;
+  padding: 0.72rem 0.8rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mic-button {
+  background: rgba(19, 42, 68, 0.14);
+  color: var(--campaign-navy);
+}
+
+.mic-button.is-recording {
+  background: #bb2f2f;
+  color: white;
+}
+
+.send-button {
+  background: var(--campaign-red);
+  color: white;
+}
+
+.mic-button:disabled,
+.send-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: revealUp 0.7s ease forwards;
+}
+
+.reveal-1 {
+  animation-delay: 0.1s;
+}
+
+.reveal-2 {
+  animation-delay: 0.2s;
+}
+
+.reveal-3 {
+  animation-delay: 0.3s;
+}
+
+@keyframes revealUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 760px) {
+  .desktop-links,
+  .cta-link {
+    display: flex;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1.06fr 0.94fr;
+    align-items: start;
+    gap: 1.7rem;
+  }
+
+  .avatar-canvas-wrap {
+    height: 420px;
+  }
+
+  .issue-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .quote-grid {
+    grid-template-columns: 0.85fr 1.15fr;
+    align-items: center;
+  }
+
+  .chat-controls {
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+  }
 }
