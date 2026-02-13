@@ -231,16 +231,20 @@ export function Avatar(props) {
         morphTargetDictionary={nodes.Wolf3D_Teeth.morphTargetDictionary}
         morphTargetInfluences={nodes.Wolf3D_Teeth.morphTargetInfluences}
       />
-      <skinnedMesh
-        geometry={nodes.Wolf3D_Glasses?.geometry}
-        material={materials.Wolf3D_Glasses}
-        skeleton={nodes.Wolf3D_Glasses?.skeleton}
-      />
-      <skinnedMesh
-        geometry={nodes.Wolf3D_Headwear?.geometry}
-        material={materials.Wolf3D_Headwear}
-        skeleton={nodes.Wolf3D_Headwear?.skeleton}
-      />
+      {nodes.Wolf3D_Glasses?.geometry && materials.Wolf3D_Glasses && (
+        <skinnedMesh
+          geometry={nodes.Wolf3D_Glasses.geometry}
+          material={materials.Wolf3D_Glasses}
+          skeleton={nodes.Wolf3D_Glasses.skeleton}
+        />
+      )}
+      {(nodes.Wolf3D_Headwear?.geometry || nodes.Wolf3D_Hair?.geometry) && (materials.Wolf3D_Headwear || materials.Wolf3D_Hair) && (
+        <skinnedMesh
+          geometry={(nodes.Wolf3D_Headwear ?? nodes.Wolf3D_Hair).geometry}
+          material={materials.Wolf3D_Headwear ?? materials.Wolf3D_Hair}
+          skeleton={(nodes.Wolf3D_Headwear ?? nodes.Wolf3D_Hair).skeleton}
+        />
+      )}
       <skinnedMesh
         geometry={nodes.Wolf3D_Body.geometry}
         material={materials.Wolf3D_Body}
