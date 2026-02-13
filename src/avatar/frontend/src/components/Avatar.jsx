@@ -10,7 +10,8 @@ import visemesMapping from "../constants/visemesMapping";
 import morphTargets from "../constants/morphTargets";
 
 export function Avatar(props) {
-  const { nodes, materials, scene } = useGLTF("/models/avatar.glb");
+  const avatarUrl = "/models/avatar.glb?v=2";
+  const { nodes, materials, scene } = useGLTF(avatarUrl);
   const { animations } = useGLTF("/models/animations.glb");
   const { message, onMessagePlayed } = useSpeech();
   const [lipsync, setLipsync] = useState();
@@ -181,6 +182,20 @@ export function Avatar(props) {
     return () => clearTimeout(blinkTimeout);
   }, []);
 
+  const isRpmFormat =
+    nodes.Hips &&
+    nodes.Wolf3D_Head &&
+    nodes.EyeLeft &&
+    nodes.EyeRight &&
+    materials?.Wolf3D_Skin;
+  if (!isRpmFormat) {
+    return (
+      <group {...props} dispose={null} position={[0, -0.5, 0]}>
+        <primitive object={scene} />
+      </group>
+    );
+  }
+
   return (
     <group {...props} dispose={null} ref={group} position={[0, -0.5, 0]}>
       <primitive object={nodes.Hips} />
@@ -250,4 +265,4 @@ export function Avatar(props) {
   );
 }
 
-useGLTF.preload("/models/avatar.glb");
+useGLTF.preload("/models/avatar.glb?v=2");
