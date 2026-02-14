@@ -1,17 +1,19 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-const configuredUrls = [
+const envUrls = [
   ...(import.meta.env.VITE_AVATAR_BACKEND_URLS || "")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean),
   import.meta.env.VITE_AVATAR_BACKEND_URL || "",
-  "http://localhost:3200",
-  "http://localhost:3100",
-  "http://localhost:3000",
 ].filter(Boolean);
 
-const backendUrls = Array.from(new Set(configuredUrls));
+const isDev = Boolean(import.meta.env.DEV);
+const sameOriginUrl = typeof window !== "undefined" ? window.location.origin : "";
+const localDevUrls = isDev ? ["http://localhost:3200", "http://localhost:3100", "http://localhost:3000"] : [];
+const defaultProdUrls = !isDev && envUrls.length === 0 && sameOriginUrl ? [sameOriginUrl] : [];
+
+const backendUrls = Array.from(new Set([...envUrls, ...defaultProdUrls, ...localDevUrls].filter(Boolean)));
 
 async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
   const controller = new AbortController();
