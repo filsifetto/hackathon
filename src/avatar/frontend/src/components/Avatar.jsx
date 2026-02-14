@@ -1,8 +1,8 @@
 /**
  * Avatar design loading pipeline:
- * 1. avatarUrl points to the 3D model (GLB). We load from the backend so the same
- *    file is always used and cache issues are avoided.
- * 2. useGLTF(avatarUrl) loads the GLB; on failure, AvatarErrorBoundary shows PlaceholderAvatar.
+ * 1. AVATAR_GLB_URL is same-origin (/models/avatar.glb) so Vite serves
+ *    frontend/public/models/avatar.glb. No cross-origin = no CORS/preload failures.
+ * 2. useGLTF(AVATAR_GLB_URL) loads the GLB; on failure, AvatarErrorBoundary shows PlaceholderAvatar.
  * 3. If the GLB has Ready Player Me node names (Wolf3D_Head, EyeLeft, etc.), we render
  *    the full rig with expressions and lip-sync; otherwise we render a simple <primitive>.
  */
@@ -13,11 +13,10 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import * as THREE from "three";
 import { useSpeech } from "../hooks/useSpeech";
+import { AVATAR_GLB_URL } from "../constants/avatarUrl";
 import facialExpressions from "../constants/facialExpressions";
 import visemesMapping from "../constants/visemesMapping";
 import morphTargets from "../constants/morphTargets";
-
-const backendUrl = import.meta.env.VITE_AVATAR_BACKEND_URL || "http://localhost:3000";
 
 function buildNodesAndMaterials(scene) {
   if (!scene) return { nodes: {}, materials: {} };
@@ -36,10 +35,15 @@ function buildNodesAndMaterials(scene) {
 }
 
 export function Avatar(props) {
-  const avatarUrl = `${backendUrl}/models/avatar.glb?v=4`;
-  const gltf = useGLTF(avatarUrl);
+  const gltf = useGLTF(AVATAR_GLB_URL);
   const scene = gltf.scene;
   const { nodes, materials } = useMemo(() => buildNodesAndMaterials(scene), [scene]);
+
+  useEffect(() => {
+    fetch(AVATAR_GLB_URL, { method: "HEAD" })
+      .then((r) => console.log("[Avatar] Asset reachable:", r.ok ? "yes" : r.status, AVATAR_GLB_URL))
+      .catch((e) => console.error("[Avatar] Asset check failed:", e.message));
+  }, []);
 
   useEffect(() => {
     if (!scene) return;
@@ -48,8 +52,8 @@ export function Avatar(props) {
       nodes?.Wolf3D_Head?.geometry &&
       nodes?.EyeLeft?.geometry &&
       nodes?.Wolf3D_Body?.geometry;
-    console.log("[Avatar] Loaded:", avatarUrl, "| RPM format:", !!isRpm, "| Node names:", Object.keys(nodes || {}).slice(0, 20).join(", "));
-  }, [scene, nodes, avatarUrl]);
+    console.log("[Avatar] Loaded:", AVATAR_GLB_URL, "| RPM format:", !!isRpm, "| Node names:", Object.keys(nodes || {}).slice(0, 20).join(", "));
+  }, [scene, nodes]);
   const { animations } = useGLTF("/models/animations.gltf");
   const { message, onMessagePlayed } = useSpeech();
   const [lipsync, setLipsync] = useState();
@@ -324,4 +328,4 @@ export function Avatar(props) {
   );
 }
 
-useGLTF.preload(`${backendUrl}/models/avatar.glb?v=4`);
+useGLTF.preload(AVATAR_GLB_URL);

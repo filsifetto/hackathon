@@ -1,12 +1,11 @@
 /**
  * Static avatar for design testing: same look as Avatar but no chat, no Leva, no lip-sync.
- * Loads GLB from public /models/avatar.glb and plays Idle only.
+ * Uses same AVATAR_GLB_URL as main Avatar so the design is identical.
  */
 import { useAnimations, useGLTF } from "@react-three/drei";
-import React, { useEffect, useMemo, useRef } from "react";
-import * as THREE from "three";
+import React, { useEffect, useMemo, useRef, Suspense } from "react";
+import { AVATAR_GLB_URL } from "../constants/avatarUrl";
 
-const avatarUrl = "/models/avatar.glb";
 const animationsUrl = "/models/animations.gltf";
 
 function buildNodesAndMaterials(scene) {
@@ -25,25 +24,30 @@ function buildNodesAndMaterials(scene) {
   return { nodes, materials };
 }
 
-export function StaticAvatar(props) {
-  const gltf = useGLTF(avatarUrl);
-  const scene = gltf.scene;
-  const { nodes, materials } = useMemo(() => buildNodesAndMaterials(scene), [scene]);
-  const group = useRef();
+function IdleAnimation({ groupRef }) {
   const { animations } = useGLTF(animationsUrl);
-  const { actions } = useAnimations(animations, group);
-  const animationName = useMemo(
+  const { actions } = useAnimations(animations, groupRef);
+  const name = useMemo(
     () => animations?.find((a) => a.name === "Idle")?.name ?? animations?.[0]?.name ?? "Idle",
     [animations]
   );
-
   useEffect(() => {
-    const act = actions[animationName] || actions[Object.keys(actions)[0]];
+    const act = actions[name] || actions[Object.keys(actions)[0]];
     if (act) {
       act.reset().fadeIn(0).play();
       return () => act.fadeOut(0.5);
     }
-  }, [actions, animationName]);
+  }, [actions, name]);
+  return null;
+}
+
+function AvatarMeshes({ onLoaded }) {
+  const gltf = useGLTF(AVATAR_GLB_URL);
+  const scene = gltf.scene;
+  const { nodes, materials } = useMemo(() => buildNodesAndMaterials(scene), [scene]);
+  useEffect(() => {
+    if (scene) onLoaded?.();
+  }, [scene, onLoaded]);
 
   const hasScene = scene != null;
   const isRpmFormat =
@@ -62,14 +66,14 @@ export function StaticAvatar(props) {
   if (!hasScene) return null;
   if (!isRpmFormat) {
     return (
-      <group {...props} dispose={null} ref={group} position={[0, -0.5, 0]}>
+      <group dispose={null}>
         <primitive object={scene} />
       </group>
     );
   }
 
   return (
-    <group {...props} dispose={null} ref={group} position={[0, -0.5, 0]}>
+    <group dispose={null}>
       <primitive object={nodes.Hips} />
       <skinnedMesh
         name="EyeLeft"
@@ -147,5 +151,20 @@ export function StaticAvatar(props) {
   );
 }
 
-useGLTF.preload(avatarUrl);
+export function StaticAvatar(props) {
+  const { onLoaded } = props;
+  const group = useRef();
+  return (
+    <group ref={group} position={[0, -0.5, 0]}>
+      <Suspense fallback={null}>
+        <AvatarMeshes onLoaded={onLoaded} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <IdleAnimation groupRef={group} />
+      </Suspense>
+    </group>
+  );
+}
+
+useGLTF.preload(AVATAR_GLB_URL);
 useGLTF.preload(animationsUrl);
