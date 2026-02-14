@@ -35,10 +35,20 @@ export const SpeechProvider = ({ children }) => {
           },
           body: JSON.stringify({ audio: base64Audio }),
         });
-        const response = (await data.json()).messages;
-        setMessages((messages) => [...messages, ...response]);
+        const json = await data.json();
+        if (!data.ok) {
+          const msg = json?.error || data.statusText || "Request failed";
+          console.error("STS error:", msg);
+          alert(msg);
+          return;
+        }
+        const response = json.messages;
+        if (Array.isArray(response)) {
+          setMessages((messages) => [...messages, ...response]);
+        }
       } catch (error) {
         console.error(error);
+        alert(error?.message || "Something went wrong.");
       } finally {
         setLoading(false);
       }
@@ -92,10 +102,20 @@ export const SpeechProvider = ({ children }) => {
         },
         body: JSON.stringify({ message }),
       });
-      const response = (await data.json()).messages;
-      setMessages((messages) => [...messages, ...response]);
+      const json = await data.json();
+      if (!data.ok) {
+        const msg = json?.error || data.statusText || "Request failed";
+        console.error("TTS error:", msg);
+        alert(msg);
+        return;
+      }
+      const response = json.messages;
+      if (Array.isArray(response)) {
+        setMessages((messages) => [...messages, ...response]);
+      }
     } catch (error) {
       console.error(error);
+      alert(error?.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }

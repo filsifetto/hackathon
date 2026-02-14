@@ -16,7 +16,7 @@ export const Scenario = () => {
       <CameraControls ref={cameraControls} />
       <Environment preset="sunset" />
       <Suspense fallback={<PlaceholderAvatar />}>
-        <AvatarErrorBoundary>
+        <AvatarErrorBoundary key="avatar-boundary-v2">
           <Avatar />
         </AvatarErrorBoundary>
       </Suspense>

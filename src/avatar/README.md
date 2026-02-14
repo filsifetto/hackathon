@@ -1,11 +1,64 @@
 # Party representative avatar
 
-Interactive talking avatar that represents your political party. Users ask questions; the avatar answers using **situational awareness** from the party program.
+A **digital spokesperson** for a political party: an interactive 3D avatar that answers questions in real time using only the party’s own program. Users type or speak; the avatar replies with clear, on-message answers and natural speech with lip-sync.
+
+## Vision
+
+- **Always on, always consistent** – Citizens and voters can talk to the party anytime. The avatar speaks only from `content/party_program.md`, so it never invents positions or drifts off-message.
+- **One source of truth** – Update the party program in one place; the avatar’s answers follow. No separate copy for “chat”, “FAQ”, or “representative script”.
+- **Inclusive and accessible** – Support both text (for quiet environments or accessibility) and voice (for a more natural, human conversation).
+- **Transparent and controllable** – Parties own the content and the tone. The system is a pipeline (LLM + TTS + lip-sync) you can run yourself and adapt to your campaign or organisation.
 
 ## Product goal
 
 - **User:** Types or speaks questions.
 - **Avatar:** Answers in line with the party’s positions, using only the content from `content/party_program.md`.
+
+## Model pipeline
+
+![Architecture diagram](../../architecture.drawio.svg)
+
+The system uses **OpenAI** (GPT and embeddings) for responses and retrieval, **OpenAI Whisper** for speech-to-text, **ElevenLabs** for text-to-speech, and **Rhubarb Lip-Sync** for lip-sync. Answer content is **retrieval-augmented**: the backend queries a vector store over the party’s content (e.g. `content/party_program.md` and `content/Politikk/`), then passes only the retrieved passages to the LLM so answers stay grounded and on-message.
+
+The backend returns a **sequence of messages**. Each message has text, a facial expression, an animation, base64 audio, and lip-sync cues so the 3D avatar can speak and move in sync.
+
+### Workflow with text input
+
+1. **User input** – The user types a question in the chat.
+2. **Request** – The text is sent to the backend (`POST /tts`).
+3. **Default messages** – If the input matches a known case (e.g. empty, missing API keys), the backend may return pre-rendered intro or error messages from `audios/`.
+4. **Retrieval** – The backend queries the vector store (indexed from party program and Politikk content) and gets the most relevant text passages for the question.
+5. **LLM** – The question plus the retrieved context is sent to OpenAI GPT. The model returns a JSON array of messages (max 3), each with `text`, `facialExpression`, and `animation`.
+6. **TTS** – Each message’s text is sent to ElevenLabs to generate speech; audio is written as `audios/message_N.mp3`.
+7. **Lip-sync** – Rhubarb Lip-Sync produces phoneme/viseme timings from the audio; the backend reads `audios/message_N.json` and attaches base64 audio + mouth cues to each message.
+8. **Response** – The frontend receives the message array and plays them in order; the avatar plays audio and drives mouth morphs from the lip-sync data.
+
+### Workflow with audio input
+
+1. **User input** – The user records with the microphone (browser `MediaRecorder`).
+2. **Request** – The recording is sent as base64 to the backend (`POST /sts`).
+3. **Speech-to-text** – The backend uses OpenAI Whisper to transcribe the audio to text.
+4. **Same as text path** – From step 3 onward, the flow is the same as for text: default messages or retrieval → LLM → TTS → lip-sync → response.
+
+### Message shape
+
+Each message in the API response looks like:
+
+```json
+{
+  "text": "Answer text to be spoken.",
+  "facialExpression": "smile",
+  "animation": "TalkingOne",
+  "audio": "<base64-encoded MP3>",
+  "lipsync": { "mouthCues": [ { "start": 0.0, "end": 0.1, "value": "X" }, ... ] }
+}
+```
+
+- **text** – What the avatar says.
+- **facialExpression** – One of: smile, sad, angry, surprised, funnyFace, default.
+- **animation** – One of: Idle, TalkingOne, TalkingThree, SadIdle, Defeated, Angry, Surprised, DismissingGesture, ThoughtfulHeadShake.
+- **audio** – Base64 MP3 for playback in the browser.
+- **lipsync** – Mouth cues (visemes) used to drive the avatar’s mouth morph targets in sync with the audio.
 
 ## Layout
 
@@ -13,7 +66,8 @@ Interactive talking avatar that represents your political party. Users ask quest
 src/avatar/
 ├── backend/          # API: LLM, TTS, lip-sync, speech-to-text
 │   ├── server.js     # Express app (POST /tts, /sts, GET /voices)
-│   ├── modules/      # openAI (party-aware), elevenLabs, whisper, lip-sync, etc.
+│   ├── modules/      # retriever (vector DB), openAI (party-aware), elevenLabs, whisper, lip-sync, etc.
+│   ├── docs/         # PIPELINE.md (RAG pipeline and component contracts)
 │   ├── utils/        # files, audios, partyProgram loader
 │   └── audios/       # Pre-rendered intro/API messages (optional)
 ├── frontend/         # React + Three.js: 3D avatar, chat UI, speech
@@ -65,17 +119,21 @@ yarn dev
 
 Open [http://localhost:5173](http://localhost:5173). Backend URL is `http://localhost:3000` by default; override with `VITE_AVATAR_BACKEND_URL` in `.env` if needed.
 
+**Design test (static avatar only):** Open [http://localhost:5173/test-avatar.html](http://localhost:5173/test-avatar.html) to view only the 3D avatar (same scene, no chat/backend). The test page loads **only** `public/models/avatar.glb` and shows it in T-pose (no animations), so it works even if `animations_data.bin` is missing.
+
 ### 4. Avatar model
+
+The frontend loads the 3D avatar from the **backend** (`GET /models/avatar.glb`), which serves the file from `frontend/public/models/avatar.glb`. This avoids cache issues and keeps one source of truth.
 
 The app expects:
 
-- `public/models/avatar.glb` – Ready Player Me (or compatible) avatar.
-- `public/models/animations.gltf` – already included.
+- `frontend/public/models/avatar.glb` – Ready Player Me (or compatible) avatar (served by backend).
+- `frontend/public/models/animations.gltf` – animation clips, loaded from the frontend.
+- `frontend/public/models/animations_data.bin` – **required**: binary buffer referenced by `animations.gltf` (same folder). If this file is missing, the main app’s avatar will fail to play animations; the design test page (`test-avatar.html`) skips animations and only needs `avatar.glb`.
 
 If you don’t have `avatar.glb` yet:
 
-- Create one at [Ready Player Me](https://readyplayer.me/), export as GLB, and put it in `src/avatar/frontend/public/models/avatar.glb`, or  
-- Or clone [talking-avatar-with-ai](https://github.com/asanchezyali/talking-avatar-with-ai) and copy `avatar.glb` from there if you have it.
+- Create one at [Ready Player Me](https://readyplayer.me/), export as GLB, and put it in `src/avatar/frontend/public/models/avatar.glb`, or clone [talking-avatar-with-ai](https://github.com/asanchezyali/talking-avatar-with-ai) and copy `avatar.glb` from there if you have it.
 
 ## Running from repo root
 
@@ -89,6 +147,4 @@ cd src/avatar/backend && yarn install && yarn dev
 cd src/avatar/frontend && yarn install && yarn dev
 ```
 
-## Subrepo note
-
-This code was extracted from [talking-avatar-with-ai](https://github.com/asanchezyali/talking-avatar-with-ai). All development happens in `src/avatar/`. The party-aware behaviour is added via `content/party_program.md` and `backend/modules/openAI.mjs`.
+Development happens in `src/avatar/`. Party-aware behaviour is added via `content/party_program.md` and `backend/modules/openAI.mjs`.

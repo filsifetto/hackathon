@@ -1,10 +1,62 @@
+/**
+ * Avatar design loading pipeline:
+ * 1. AVATAR_GLB_URL is same-origin (/models/avatar.glb) so Vite serves
+ *    frontend/public/models/avatar.glb. No cross-origin = no CORS/preload failures.
+ * 2. useGLTF(AVATAR_GLB_URL) loads the GLB; on failure, AvatarErrorBoundary shows PlaceholderAvatar.
+ * 3. If the GLB has Ready Player Me node names (Wolf3D_Head, EyeLeft, etc.), we render
+ *    the full rig with expressions and lip-sync; otherwise we render a simple <primitive>.
+ */
+import { useAnimations, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
+import { button, useControls } from "leva";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+
+import * as THREE from "three";
 import { useSpeech } from "../hooks/useSpeech";
+import { AVATAR_GLB_URL } from "../constants/avatarUrl";
+import facialExpressions from "../constants/facialExpressions";
+import visemesMapping from "../constants/visemesMapping";
+import morphTargets from "../constants/morphTargets";
+
+function buildNodesAndMaterials(scene) {
+  if (!scene) return { nodes: {}, materials: {} };
+  const nodes = {};
+  const materials = {};
+  scene.traverse((obj) => {
+    const name = obj.name;
+    if (name) {
+      if (obj.isSkinnedMesh || obj.isMesh) nodes[name] = obj;
+      else if (!nodes[name]) nodes[name] = obj;
+    }
+    const mats = obj.material != null ? (Array.isArray(obj.material) ? obj.material : [obj.material]) : [];
+    mats.forEach((m) => { if (m && m.name) materials[m.name] = m; });
+  });
+  return { nodes, materials };
+}
 
 export function Avatar(props) {
-  const { nodes, materials, scene } = useGLTF("/models/avatar.glb");
-  const { animations } = useGLTF("/models/animations.glb");
+  const gltf = useGLTF(AVATAR_GLB_URL);
+  const scene = gltf.scene;
+  const { nodes, materials } = useMemo(() => buildNodesAndMaterials(scene), [scene]);
+
+  useEffect(() => {
+    const oldBackendUrl = `${import.meta.env.VITE_AVATAR_BACKEND_URL || "http://localhost:3000"}/models/avatar.glb?v=4`;
+    useGLTF.clear(oldBackendUrl);
+    fetch(AVATAR_GLB_URL, { method: "HEAD" })
+      .then((r) => console.log("[Avatar] Asset reachable:", r.ok ? "yes" : r.status, AVATAR_GLB_URL))
+      .catch((e) => console.error("[Avatar] Asset check failed:", e.message));
+  }, []);
+
+  useEffect(() => {
+    if (!scene) return;
+    const isRpm =
+      nodes?.Hips &&
+      nodes?.Wolf3D_Head?.geometry &&
+      nodes?.EyeLeft?.geometry &&
+      nodes?.Wolf3D_Body?.geometry;
+    console.log("[Avatar] Loaded:", AVATAR_GLB_URL, "| RPM format:", !!isRpm, "| Node names:", Object.keys(nodes || {}).slice(0, 20).join(", "));
+  }, [scene, nodes]);
+  const { animations } = useGLTF("/models/animations.gltf");
   const { message, onMessagePlayed } = useSpeech();
   const [lipsync, setLipsync] = useState();
   const [setupMode, setSetupMode] = useState(false);
@@ -28,13 +80,138 @@ export function Avatar(props) {
   }, [message]);
 
   const group = useRef();
+  const { actions, mixer } = useAnimations(animations, group);
+  const [animation, setAnimation] = useState(
+    animations.find((a) => a.name === "Idle") ? "Idle" : animations[0].name
+  );
+  useEffect(() => {
+    if (actions[animation]) {
+      actions[animation]
+        .reset()
+        .fadeIn(mixer.stats.actions.inUse === 0 ? 0 : 0.5)
+        .play();
+      return () => {
+        if (actions[animation]) {
+          actions[animation].fadeOut(0.5);
+        }
+      };
+    }
+  }, [animation]);
+
   const head = useRef();
   const mouth = useRef();
-  const leftEye = useRef();
-  const rightEye = useRef();
+  const lerpMorphTarget = (target, value, speed = 0.1) => {
+    if (!scene?.traverse) return;
+    scene.traverse((child) => {
+      if (child.isSkinnedMesh && child.morphTargetDictionary) {
+        const index = child.morphTargetDictionary[target];
+        if (index === undefined || child.morphTargetInfluences[index] === undefined) {
+          return;
+        }
+        child.morphTargetInfluences[index] = THREE.MathUtils.lerp(
+          child.morphTargetInfluences[index],
+          value,
+          speed
+        );
+      }
+    });
+  };
 
-  const { message } = useSpeech();
   const [blink, setBlink] = useState(false);
+  const [facialExpression, setFacialExpression] = useState("");
+  const [audio, setAudio] = useState();
+
+  useFrame(() => {
+    if (!scene) return;
+    !setupMode &&
+      morphTargets.forEach((key) => {
+        const mapping = facialExpressions[facialExpression];
+        if (key === "eyeBlinkLeft" || key === "eyeBlinkRight") {
+          return;
+        }
+        if (mapping && mapping[key]) {
+          lerpMorphTarget(key, mapping[key], 0.1);
+        } else {
+          lerpMorphTarget(key, 0, 0.1);
+        }
+      });
+
+    lerpMorphTarget("eyeBlinkLeft", blink ? 1 : 0, 0.5);
+    lerpMorphTarget("eyeBlinkRight", blink ? 1 : 0, 0.5);
+
+    if (setupMode) {
+      return;
+    }
+
+    const appliedMorphTargets = [];
+    if (message && lipsync) {
+      const currentAudioTime = audio?.currentTime ?? 0;
+      for (let i = 0; i < lipsync.mouthCues.length; i++) {
+        const mouthCue = lipsync.mouthCues[i];
+        if (currentAudioTime >= mouthCue.start && currentAudioTime <= mouthCue.end) {
+          appliedMorphTargets.push(visemesMapping[mouthCue.value]);
+          lerpMorphTarget(visemesMapping[mouthCue.value], 1, 0.2);
+          break;
+        }
+      }
+    }
+
+    Object.values(visemesMapping).forEach((value) => {
+      if (appliedMorphTargets.includes(value)) {
+        return;
+      }
+      lerpMorphTarget(value, 0, 0.1);
+    });
+  });
+
+  useControls("FacialExpressions", {
+    animation: {
+      value: animation,
+      options: animations.map((a) => a.name),
+      onChange: (value) => setAnimation(value),
+    },
+    facialExpression: {
+      options: Object.keys(facialExpressions),
+      onChange: (value) => setFacialExpression(value),
+    },
+    setupMode: button(() => {
+      setSetupMode(!setupMode);
+    }),
+    logMorphTargetValues: button(() => {
+      const emotionValues = {};
+      Object.values(nodes).forEach((node) => {
+        if (node.morphTargetInfluences && node.morphTargetDictionary) {
+          morphTargets.forEach((key) => {
+            if (key === "eyeBlinkLeft" || key === "eyeBlinkRight") {
+              return;
+            }
+            const value = node.morphTargetInfluences[node.morphTargetDictionary[key]];
+            if (value > 0.01) {
+              emotionValues[key] = value;
+            }
+          });
+        }
+      });
+      console.log(JSON.stringify(emotionValues, null, 2));
+    }),
+  });
+
+  useControls("MorphTarget", () =>
+    Object.assign(
+      {},
+      ...morphTargets.map((key) => ({
+        [key]: {
+          label: key,
+          value: 0,
+          min: 0,
+          max: 1,
+          onChange: (val) => {
+            lerpMorphTarget(key, val, 0.1);
+          },
+        },
+      }))
+    )
+  );
 
   useEffect(() => {
     let blinkTimeout;
@@ -53,60 +230,106 @@ export function Avatar(props) {
     return () => clearTimeout(blinkTimeout);
   }, []);
 
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-
-    if (group.current) {
-      group.current.rotation.y = Math.sin(t * 0.35) * 0.12;
-    }
-
-    if (head.current) {
-      head.current.position.y = 1.62 + Math.sin(t * 1.4) * 0.02;
-    }
-
-    const talking = !!message;
-    const mouthOpen = talking ? (Math.sin(t * 12) + 1) * 0.07 + 0.015 : 0.015;
-
-    if (mouth.current) {
-      mouth.current.scale.y = mouthOpen / 0.03;
-      mouth.current.position.y = 1.47 - mouthOpen * 0.08;
-    }
-
-    const eyeScaleY = blink ? 0.08 : 1;
-    if (leftEye.current) {
-      leftEye.current.scale.y = eyeScaleY;
-    }
-    if (rightEye.current) {
-      rightEye.current.scale.y = eyeScaleY;
-    }
-  });
+  const hasScene = scene != null;
+  const isRpmFormat =
+    hasScene &&
+    nodes?.Hips &&
+    nodes?.Wolf3D_Head?.geometry &&
+    nodes?.EyeLeft?.geometry &&
+    nodes?.EyeRight?.geometry &&
+    nodes?.Wolf3D_Teeth?.geometry &&
+    nodes?.Wolf3D_Body?.geometry &&
+    materials?.Wolf3D_Skin &&
+    materials?.Wolf3D_Eye &&
+    materials?.Wolf3D_Teeth &&
+    materials?.Wolf3D_Body;
+  if (!hasScene) return null;
+  if (!isRpmFormat) {
+    console.warn("[Avatar] GLB loaded but not Ready Player Me format (missing Wolf3D_Head etc.). Rendering as generic primitive.");
+    return (
+      <group {...props} dispose={null} ref={group} position={[0, -0.5, 0]}>
+        <primitive object={scene} />
+      </group>
+    );
+  }
 
   return (
-    <group ref={group} {...props} position={[0, -0.5, 0]}>
-      <mesh position={[0, 0.7, 0]} castShadow receiveShadow>
-        <capsuleGeometry args={[0.38, 0.9, 10, 18]} />
-        <meshStandardMaterial color="#142c47" roughness={0.6} metalness={0.08} />
-      </mesh>
-
-      <mesh ref={head} position={[0, 1.62, 0]} castShadow receiveShadow>
-        <sphereGeometry args={[0.32, 24, 24]} />
-        <meshStandardMaterial color="#f3c8a5" roughness={0.68} metalness={0.02} />
-      </mesh>
-
-      <mesh ref={leftEye} position={[-0.1, 1.66, 0.27]}>
-        <sphereGeometry args={[0.03, 16, 16]} />
-        <meshStandardMaterial color="#111111" />
-      </mesh>
-
-      <mesh ref={rightEye} position={[0.1, 1.66, 0.27]}>
-        <sphereGeometry args={[0.03, 16, 16]} />
-        <meshStandardMaterial color="#111111" />
-      </mesh>
-
-      <mesh ref={mouth} position={[0, 1.47, 0.28]}>
-        <sphereGeometry args={[0.055, 16, 16]} />
-        <meshStandardMaterial color="#8e2424" roughness={0.5} />
-      </mesh>
+    <group {...props} dispose={null} ref={group} position={[0, -0.5, 0]}>
+      <primitive object={nodes.Hips} />
+      <skinnedMesh
+        name="EyeLeft"
+        geometry={nodes.EyeLeft.geometry}
+        material={materials.Wolf3D_Eye}
+        skeleton={nodes.EyeLeft.skeleton}
+        morphTargetDictionary={nodes.EyeLeft.morphTargetDictionary}
+        morphTargetInfluences={nodes.EyeLeft.morphTargetInfluences}
+      />
+      <skinnedMesh
+        name="EyeRight"
+        geometry={nodes.EyeRight.geometry}
+        material={materials.Wolf3D_Eye}
+        skeleton={nodes.EyeRight.skeleton}
+        morphTargetDictionary={nodes.EyeRight.morphTargetDictionary}
+        morphTargetInfluences={nodes.EyeRight.morphTargetInfluences}
+      />
+      <skinnedMesh
+        name="Wolf3D_Head"
+        geometry={nodes.Wolf3D_Head.geometry}
+        material={materials.Wolf3D_Skin}
+        skeleton={nodes.Wolf3D_Head.skeleton}
+        morphTargetDictionary={nodes.Wolf3D_Head.morphTargetDictionary}
+        morphTargetInfluences={nodes.Wolf3D_Head.morphTargetInfluences}
+      />
+      <skinnedMesh
+        name="Wolf3D_Teeth"
+        geometry={nodes.Wolf3D_Teeth.geometry}
+        material={materials.Wolf3D_Teeth}
+        skeleton={nodes.Wolf3D_Teeth.skeleton}
+        morphTargetDictionary={nodes.Wolf3D_Teeth.morphTargetDictionary}
+        morphTargetInfluences={nodes.Wolf3D_Teeth.morphTargetInfluences}
+      />
+      {nodes.Wolf3D_Glasses?.geometry && materials.Wolf3D_Glasses && (
+        <skinnedMesh
+          geometry={nodes.Wolf3D_Glasses.geometry}
+          material={materials.Wolf3D_Glasses}
+          skeleton={nodes.Wolf3D_Glasses.skeleton}
+        />
+      )}
+      {(nodes.Wolf3D_Headwear?.geometry || nodes.Wolf3D_Hair?.geometry) && (materials.Wolf3D_Headwear || materials.Wolf3D_Hair) && (
+        <skinnedMesh
+          geometry={(nodes.Wolf3D_Headwear ?? nodes.Wolf3D_Hair).geometry}
+          material={materials.Wolf3D_Headwear ?? materials.Wolf3D_Hair}
+          skeleton={(nodes.Wolf3D_Headwear ?? nodes.Wolf3D_Hair).skeleton}
+        />
+      )}
+      <skinnedMesh
+        geometry={nodes.Wolf3D_Body.geometry}
+        material={materials.Wolf3D_Body}
+        skeleton={nodes.Wolf3D_Body.skeleton}
+      />
+      {nodes.Wolf3D_Outfit_Bottom?.geometry && materials.Wolf3D_Outfit_Bottom && (
+        <skinnedMesh
+          geometry={nodes.Wolf3D_Outfit_Bottom.geometry}
+          material={materials.Wolf3D_Outfit_Bottom}
+          skeleton={nodes.Wolf3D_Outfit_Bottom.skeleton}
+        />
+      )}
+      {nodes.Wolf3D_Outfit_Footwear?.geometry && materials.Wolf3D_Outfit_Footwear && (
+        <skinnedMesh
+          geometry={nodes.Wolf3D_Outfit_Footwear.geometry}
+          material={materials.Wolf3D_Outfit_Footwear}
+          skeleton={nodes.Wolf3D_Outfit_Footwear.skeleton}
+        />
+      )}
+      {nodes.Wolf3D_Outfit_Top?.geometry && materials.Wolf3D_Outfit_Top && (
+        <skinnedMesh
+          geometry={nodes.Wolf3D_Outfit_Top.geometry}
+          material={materials.Wolf3D_Outfit_Top}
+          skeleton={nodes.Wolf3D_Outfit_Top.skeleton}
+        />
+      )}
     </group>
   );
 }
+
+useGLTF.preload(AVATAR_GLB_URL);

@@ -1,0 +1,72 @@
+[
+  {
+    "document_id": "2767de3c-25e4-5966-9844-31c61d64b34b",
+    "title": "Hvordan l\u00e6re \u00e5 bruke AI som verkt\u00f8y i kombinasjon med fagutdanningen_",
+    "source": "/home/filsifetto/dev/hackathon/src/avatar/content/Politikk/Hvordan l\u00e6re \u00e5 bruke AI som verkt\u00f8y i kombinasjon med fagutdanningen_.docx",
+    "category": null,
+    "document_type": "text",
+    "token_count": 4489,
+    "chunk_count": 22,
+    "ingested_at": "2026-02-13T20:37:29.860251"
+  },
+  {
+    "document_id": "02edd911-a386-5821-9b99-8699456718f7",
+    "title": "Borgerl\u00f8nn_ (for eller mot_ Hvordan kunne det blitt l\u00f8st_)",
+    "source": "/home/filsifetto/dev/hackathon/src/avatar/content/Politikk/Borgerl\u00f8nn_ (for eller mot_ Hvordan kunne det blitt l\u00f8st_).docx",
+    "category": null,
+    "document_type": "text",
+    "token_count": 2360,
+    "chunk_count": 12,
+    "ingested_at": "2026-02-13T20:37:29.860271"
+  },
+  {
+    "document_id": "0b756095-0db6-5bb2-b4c9-17b4b289b598",
+    "title": "Fremtidens arbeidsplasser, n\u00e5r mange jobber er blitt automatisert",
+    "source": "/home/filsifetto/dev/hackathon/src/avatar/content/Politikk/Fremtidens arbeidsplasser, n\u00e5r mange jobber er blitt automatisert.docx",
+    "category": null,
+    "document_type": "text",
+    "token_count": 2324,
+    "chunk_count": 12,
+    "ingested_at": "2026-02-13T20:37:29.860276"
+  },
+  {
+    "document_id": "371fcd9d-09cf-5c71-84c1-c9ad5057158e",
+    "title": "Hvordan gjennomf\u00f8re eksamener n\u00e5r AI er tilgjengelig_ Hva er det som skal vurderes_",
+    "source": "/home/filsifetto/dev/hackathon/src/avatar/content/Politikk/Hvordan gjennomf\u00f8re eksamener n\u00e5r AI er tilgjengelig_ Hva er det som skal vurderes_.docx",
+    "category": null,
+    "document_type": "text",
+    "token_count": 1959,
+    "chunk_count": 10,
+    "ingested_at": "2026-02-13T20:37:29.860281"
+  },
+  {
+    "document_id": "41ce6287-b239-5be7-95a9-47220c0edde0",
+    "title": "Fremtidens transport og logistikk l\u00f8sninger",
+    "source": "/home/filsifetto/dev/hackathon/src/avatar/content/Politikk/Fremtidens transport og logistikk l\u00f8sninger.docx",
+    "category": null,
+    "document_type": "text",
+    "token_count": 2310,
+    "chunk_count": 11,
+    "ingested_at": "2026-02-13T20:37:29.860285"
+  },
+  {
+    "document_id": "0c2119eb-a04e-503e-8b01-9d2493c270c0",
+    "title": "Hva kan AI tilf\u00f8re eksisterende fag_",
+    "source": "/home/filsifetto/dev/hackathon/src/avatar/content/Politikk/Hva kan AI tilf\u00f8re eksisterende fag_.docx",
+    "category": null,
+    "document_type": "text",
+    "token_count": 2116,
+    "chunk_count": 11,
+    "ingested_at": "2026-02-13T20:37:29.860290"
+  },
+  {
+    "document_id": "96fda95f-e475-5377-9f24-6ee12d9bed0a",
+    "title": "H\u00e5ndtering av klimatrusler",
+    "source": "/home/filsifetto/dev/hackathon/src/avatar/content/Politikk/H\u00e5ndtering av klimatrusler.docx",
+    "category": null,
+    "document_type": "text",
+    "token_count": 2057,
+    "chunk_count": 11,
+    "ingested_at": "2026-02-13T20:37:29.860295"
+  }
+]
