@@ -1,3 +1,11 @@
+/**
+ * Avatar design loading pipeline:
+ * 1. avatarUrl points to the 3D model (GLB). We load from the backend so the same
+ *    file is always used and cache issues are avoided.
+ * 2. useGLTF(avatarUrl) loads the GLB; on failure, AvatarErrorBoundary shows PlaceholderAvatar.
+ * 3. If the GLB has Ready Player Me node names (Wolf3D_Head, EyeLeft, etc.), we render
+ *    the full rig with expressions and lip-sync; otherwise we render a simple <primitive>.
+ */
 import { useAnimations, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { button, useControls } from "leva";
@@ -8,6 +16,8 @@ import { useSpeech } from "../hooks/useSpeech";
 import facialExpressions from "../constants/facialExpressions";
 import visemesMapping from "../constants/visemesMapping";
 import morphTargets from "../constants/morphTargets";
+
+const backendUrl = import.meta.env.VITE_AVATAR_BACKEND_URL || "http://localhost:3000";
 
 function buildNodesAndMaterials(scene) {
   if (!scene) return { nodes: {}, materials: {} };
@@ -26,10 +36,20 @@ function buildNodesAndMaterials(scene) {
 }
 
 export function Avatar(props) {
-  const avatarUrl = "/models/avatar.glb?v=2";
+  const avatarUrl = `${backendUrl}/models/avatar.glb?v=4`;
   const gltf = useGLTF(avatarUrl);
   const scene = gltf.scene;
   const { nodes, materials } = useMemo(() => buildNodesAndMaterials(scene), [scene]);
+
+  useEffect(() => {
+    if (!scene) return;
+    const isRpm =
+      nodes?.Hips &&
+      nodes?.Wolf3D_Head?.geometry &&
+      nodes?.EyeLeft?.geometry &&
+      nodes?.Wolf3D_Body?.geometry;
+    console.log("[Avatar] Loaded:", avatarUrl, "| RPM format:", !!isRpm, "| Node names:", Object.keys(nodes || {}).slice(0, 20).join(", "));
+  }, [scene, nodes, avatarUrl]);
   const { animations } = useGLTF("/models/animations.gltf");
   const { message, onMessagePlayed } = useSpeech();
   const [lipsync, setLipsync] = useState();
@@ -217,6 +237,7 @@ export function Avatar(props) {
     materials?.Wolf3D_Body;
   if (!hasScene) return null;
   if (!isRpmFormat) {
+    console.warn("[Avatar] GLB loaded but not Ready Player Me format (missing Wolf3D_Head etc.). Rendering as generic primitive.");
     return (
       <group {...props} dispose={null} ref={group} position={[0, -0.5, 0]}>
         <primitive object={scene} />
@@ -303,4 +324,4 @@ export function Avatar(props) {
   );
 }
 
-useGLTF.preload("/models/avatar.glb?v=2");
+useGLTF.preload(`${backendUrl}/models/avatar.glb?v=4`);

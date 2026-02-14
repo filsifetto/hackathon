@@ -117,12 +117,16 @@ yarn dev
 
 Open [http://localhost:5173](http://localhost:5173). Backend URL is `http://localhost:3000` by default; override with `VITE_AVATAR_BACKEND_URL` in `.env` if needed.
 
+**Design test (static avatar only):** Open [http://localhost:5173/test-avatar.html](http://localhost:5173/test-avatar.html) to view only the 3D avatar with the same scene (camera, environment, Idle animation). No chat or backend required; the avatar is loaded from `public/models/avatar.glb`.
+
 ### 4. Avatar model
+
+The frontend loads the 3D avatar from the **backend** (`GET /models/avatar.glb`), which serves the file from `frontend/public/models/avatar.glb`. This avoids cache issues and keeps one source of truth.
 
 The app expects:
 
-- `public/models/avatar.glb` – Ready Player Me (or compatible) avatar.
-- `public/models/animations.gltf` – already included.
+- `frontend/public/models/avatar.glb` – Ready Player Me (or compatible) avatar (served by backend).
+- `frontend/public/models/animations.gltf` – already included, loaded from the frontend.
 
 If you don’t have `avatar.glb` yet:
 

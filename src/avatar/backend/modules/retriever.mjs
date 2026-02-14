@@ -78,6 +78,15 @@ async function ensureIndexed() {
 }
 
 /**
+ * Clear the in-memory store so the next request rebuilds from current content.
+ * Use after content is removed or updated so the index is empty or fresh.
+ */
+function resetStore() {
+  store = null;
+  initPromise = null;
+}
+
+/**
  * Retriever: query → context string.
  * Contract: input { query: string }, output Promise<{ context: string }>.
  * Does not call LLM or speech; used only by the server.
@@ -119,3 +128,5 @@ export async function retrieve({ query }) {
 
   return { context: top.join("\n\n") };
 }
+
+export { resetStore };
