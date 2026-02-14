@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760">
+  <defs>
+    <linearGradient id="bg3" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#08152f"/>
+      <stop offset="100%" stop-color="#1f2b6f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="760" fill="url(#bg3)"/>
+  <rect x="100" y="170" width="1000" height="430" rx="30" fill="#0e234f" stroke="#70e9ff" stroke-width="4"/>
+  <rect x="190" y="260" width="540" height="250" rx="18" fill="#223f75"/>
+  <rect x="220" y="292" width="480" height="40" rx="12" fill="#6a7dff"/>
+  <rect x="220" y="350" width="310" height="24" rx="10" fill="#8bc7ff"/>
+  <rect x="220" y="392" width="260" height="24" rx="10" fill="#8bc7ff"/>
+  <circle cx="860" cy="350" r="62" fill="#1b3e71"/>
+  <rect x="820" y="420" width="86" height="100" rx="20" fill="#46e6ff"/>
+  <circle cx="860" cy="350" r="24" fill="#ffd7b5"/>
+  <text x="140" y="235" fill="#ddebff" font-size="44" font-family="Arial, sans-serif" font-weight="700">Teknologi i skolen</text>
+</svg>

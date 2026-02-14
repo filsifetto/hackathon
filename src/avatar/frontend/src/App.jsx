@@ -6,6 +6,8 @@ import { HomePage } from "./pages/HomePage";
 import { EventsPage } from "./pages/EventsPage";
 import { AboutPage } from "./pages/AboutPage";
 import { ProgramPage } from "./pages/ProgramPage";
+import { CasePage } from "./pages/CasePage";
+import { JoinPage } from "./pages/JoinPage";
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
           <Route path="/arrangementer" element={<EventsPage />} />
           <Route path="/om-oss" element={<AboutPage />} />
           <Route path="/partiprogram" element={<ProgramPage />} />
+          <Route path="/bli-medlem" element={<JoinPage />} />
+          <Route path="/saker/:slug" element={<CasePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </SiteLayout>

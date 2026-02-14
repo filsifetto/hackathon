@@ -1,9 +1,10 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useSpeech } from "../hooks/useSpeech";
 
 export const ChatInterface = ({ hidden }) => {
   const input = useRef();
-  const { tts, loading, message, startRecording, stopRecording, recording } = useSpeech();
+  const timeline = useRef();
+  const { tts, loading, message, startRecording, stopRecording, recording, chatMessages } = useSpeech();
 
   const sendMessage = () => {
     const text = input.current?.value?.trim();
@@ -14,6 +15,11 @@ export const ChatInterface = ({ hidden }) => {
     input.current.value = "";
   };
 
+  useEffect(() => {
+    if (!timeline.current) return;
+    timeline.current.scrollTop = timeline.current.scrollHeight;
+  }, [chatMessages, loading]);
+
   if (hidden) {
     return null;
   }
@@ -21,16 +27,28 @@ export const ChatInterface = ({ hidden }) => {
   return (
     <div className="chat-card inngang inngang-1">
       <div className="chat-header">
-        <h3>Sporsmalslinje</h3>
+        <h3>Spørsmålslinje</h3>
         <p>
           {recording
             ? "Tar opp lyd..."
             : loading
             ? "Representanten forbereder svar..."
             : message
-            ? "Representanten svarer na"
-            : "Still et sporsmal om partiets politikk"}
+            ? "Representanten svarer nå"
+            : "Still et spørsmål om partiets politikk"}
         </p>
+      </div>
+
+      <div className="chat-log" ref={timeline}>
+        {chatMessages.length === 0 ? (
+          <p className="chat-empty">Samtalen vises her når du sender et spørsmål.</p>
+        ) : (
+          chatMessages.map((entry) => (
+            <div key={entry.id} className={`chat-bubble ${entry.role === "user" ? "chat-bubble-user" : "chat-bubble-assistant"}`}>
+              {entry.text}
+            </div>
+          ))
+        )}
       </div>
 
       <div className="chat-controls">

@@ -1,6 +1,65 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-const backendUrl = import.meta.env.VITE_AVATAR_BACKEND_URL || "http://localhost:3000";
+const envUrls = [
+  ...(import.meta.env.VITE_AVATAR_BACKEND_URLS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
+  import.meta.env.VITE_AVATAR_BACKEND_URL || "",
+].filter(Boolean);
+
+const isDev = Boolean(import.meta.env.DEV);
+const sameOriginUrl = typeof window !== "undefined" ? window.location.origin : "";
+const localDevUrls = isDev ? ["http://localhost:3200", "http://localhost:3100", "http://localhost:3000"] : [];
+const defaultProdUrls = !isDev && envUrls.length === 0 && sameOriginUrl ? [sameOriginUrl] : [];
+
+const backendUrls = Array.from(new Set([...envUrls, ...defaultProdUrls, ...localDevUrls].filter(Boolean)));
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = 60000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function postWithFallback(path, body) {
+  let lastError = null;
+
+  for (const baseUrl of backendUrls) {
+    const endpoint = `${baseUrl}${path}`;
+    try {
+      const response = await fetchWithTimeout(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        let detail = "";
+        try {
+          const err = await response.json();
+          detail = err?.detail || err?.error || "";
+        } catch {
+          // Ignore JSON parsing errors.
+        }
+        throw new Error(detail || `Backend returned ${response.status} on ${baseUrl}`);
+      }
+      return await response.json();
+    } catch (error) {
+      if (error?.name === "AbortError") {
+        lastError = new Error(`Request timed out on ${baseUrl} (possibly cold start)`);
+        continue;
+      }
+      lastError = error;
+      // Try next backend URL.
+    }
+  }
+
+  throw lastError || new Error("No available backend URL");
+}
 
 const SpeechContext = createContext();
 
@@ -8,6 +67,7 @@ export const SpeechProvider = ({ children }) => {
   const [recording, setRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [chatMessages, setChatMessages] = useState([]);
   const [message, setMessage] = useState();
   const [loading, setLoading] = useState(false);
 
@@ -28,27 +88,29 @@ export const SpeechProvider = ({ children }) => {
       const base64Audio = reader.result.split(",")[1];
       setLoading(true);
       try {
-        const data = await fetch(`${backendUrl}/sts`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ audio: base64Audio }),
-        });
-        const json = await data.json();
-        if (!data.ok) {
-          const msg = json?.error || data.statusText || "Request failed";
-          console.error("STS error:", msg);
-          alert(msg);
-          return;
-        }
-        const response = json.messages;
-        if (Array.isArray(response)) {
-          setMessages((messages) => [...messages, ...response]);
-        }
+        const payload = await postWithFallback("/sts", { audio: base64Audio });
+        const response = payload?.messages || [];
+        setMessages((messages) => [...messages, ...response]);
+        setChatMessages((current) => [
+          ...current,
+          ...response
+            .filter((item) => item?.text)
+            .map((item, idx) => ({
+              id: `assistant-voice-${Date.now()}-${idx}`,
+              role: "assistant",
+              text: item.text,
+            })),
+        ]);
       } catch (error) {
         console.error(error);
-        alert(error?.message || "Something went wrong.");
+        setChatMessages((current) => [
+          ...current,
+          {
+            id: `assistant-error-${Date.now()}`,
+            role: "assistant",
+            text: "Beklager, jeg fikk ikke behandlet lydmeldingen nå.",
+          },
+        ]);
       } finally {
         setLoading(false);
       }
@@ -93,29 +155,45 @@ export const SpeechProvider = ({ children }) => {
   };
 
   const tts = async (message) => {
+    const text = message?.trim();
+    if (!text) {
+      return;
+    }
+
+    setChatMessages((current) => [
+      ...current,
+      {
+        id: `user-${Date.now()}`,
+        role: "user",
+        text,
+      },
+    ]);
+
     setLoading(true);
     try {
-      const data = await fetch(`${backendUrl}/tts`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message }),
-      });
-      const json = await data.json();
-      if (!data.ok) {
-        const msg = json?.error || data.statusText || "Request failed";
-        console.error("TTS error:", msg);
-        alert(msg);
-        return;
-      }
-      const response = json.messages;
-      if (Array.isArray(response)) {
-        setMessages((messages) => [...messages, ...response]);
-      }
+      const payload = await postWithFallback("/tts", { message: text });
+      const response = payload?.messages || [];
+      setMessages((messages) => [...messages, ...response]);
+      setChatMessages((current) => [
+        ...current,
+        ...response
+          .filter((item) => item?.text)
+          .map((item, idx) => ({
+            id: `assistant-${Date.now()}-${idx}`,
+            role: "assistant",
+            text: item.text,
+          })),
+      ]);
     } catch (error) {
       console.error(error);
-      alert(error?.message || "Something went wrong.");
+      setChatMessages((current) => [
+        ...current,
+        {
+          id: `assistant-error-${Date.now()}`,
+          role: "assistant",
+          text: `Beklager, jeg klarte ikke å svare akkurat nå. (${error?.message || "ukjent feil"})`,
+        },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -143,6 +221,7 @@ export const SpeechProvider = ({ children }) => {
         message,
         onMessagePlayed,
         loading,
+        chatMessages,
       }}
     >
       {children}

@@ -5,6 +5,7 @@ const menu = [
   { to: "/arrangementer", label: "Arrangementer" },
   { to: "/om-oss", label: "Om oss" },
   { to: "/partiprogram", label: "Partiprogram" },
+  { to: "/bli-medlem", label: "Bli medlem" },
 ];
 
 export function SiteLayout({ children }) {
@@ -12,7 +13,7 @@ export function SiteLayout({ children }) {
     <div className="site-shell">
       <header className="hovednavigasjon">
         <div className="container nav-innhold">
-          <Link to="/" className="logo-gruppe" aria-label="Ga til forsiden">
+          <Link to="/" className="logo-gruppe" aria-label="Gå til forsiden">
             <span className="logo-brikke">TF</span>
             <div>
               <p className="logo-tittel">Teknologisk Folkeparti</p>
@@ -28,8 +29,8 @@ export function SiteLayout({ children }) {
             ))}
           </nav>
 
-          <Link to="/partiprogram" className="knapp knapp-primar desktop-knapp">
-            Les programmet
+          <Link to="/bli-medlem" className="knapp knapp-primar desktop-knapp cta-medlem">
+            Bli medlem
           </Link>
         </div>
 
