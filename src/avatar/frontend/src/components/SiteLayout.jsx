@@ -5,6 +5,7 @@ const menu = [
   { to: "/arrangementer", label: "Arrangementer" },
   { to: "/om-oss", label: "Om oss" },
   { to: "/partiprogram", label: "Partiprogram" },
+  { to: "/bli-medlem", label: "Bli medlem" },
 ];
 
 export function SiteLayout({ children }) {
@@ -28,8 +29,8 @@ export function SiteLayout({ children }) {
             ))}
           </nav>
 
-          <Link to="/partiprogram" className="knapp knapp-primar desktop-knapp">
-            Les programmet
+          <Link to="/bli-medlem" className="knapp knapp-primar desktop-knapp cta-medlem">
+            Bli medlem
           </Link>
         </div>
 

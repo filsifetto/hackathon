@@ -7,16 +7,16 @@ import { MessageAudioPlayer } from "../components/MessageAudioPlayer";
 
 const fanesaker = [
   {
-    tittel: "Digital trygghet for alle",
-    tekst: "Vi vil gi alle innbyggere enkel tilgang til sikre offentlige digitale tjenester uten teknisk stress.",
+    tittel: "Trygg AI i offentlig sektor",
+    tekst: "Vi krever åpenhet, etterprøvbarhet og menneskelig kontroll når AI brukes i tjenester som påvirker innbyggernes rettigheter.",
   },
   {
-    tittel: "Kunstig intelligens i velferden",
-    tekst: "AI skal brukes for raskere helseoppfølging, bedre skoleverktøy og smartere kommunale tjenester.",
+    tittel: "Grønn digital omstilling",
+    tekst: "Vi bruker teknologi til å kutte utslipp, effektivisere energibruk og bygge robust infrastruktur for et mer ekstremt klima.",
   },
   {
-    tittel: "Norske teknologijobber",
-    tekst: "Vi investerer i kompetanse, omstilling og nye arbeidsplasser innen grønn teknologi og dataindustri.",
+    tittel: "Kompetanse for fremtidens arbeidsliv",
+    tekst: "Vi vil gi elever, lærere og fagarbeidere verktøyene de trenger for å mestre AI og automatisering i praksis.",
   },
 ];
 
@@ -34,6 +34,9 @@ export function HomePage() {
               Teknologisk Folkeparti bygger et Norge der moderne teknologi gjør hverdagen enklere, tryggere og mer rettferdig for alle.
             </p>
             <div className="knappegruppe">
+              <Link to="/bli-medlem" className="knapp knapp-primar cta-medlem">
+                Bli medlem
+              </Link>
               <Link to="/partiprogram" className="knapp knapp-primar">
                 Utforsk partiprogram
               </Link>
@@ -59,7 +62,7 @@ export function HomePage() {
 
       <section className="seksjon">
         <div className="container">
-          <p className="etikett">Våre fanesaker</p>
+          <p className="etikett">Politisk retning</p>
           <h2 className="seksjonstittel">En teknologisk politikk med mennesket i sentrum</h2>
           <div className="kort-rutenett tre">
             {fanesaker.map((sak, indeks) => (

@@ -1,3 +1,11 @@
+const avatarFiler = [
+  "ChatGPT Image 14. feb. 2026, 09_52_59.png",
+  "ChatGPT Image 14. feb. 2026, 09_57_56.png",
+  "ChatGPT Image 14. feb. 2026, 09_59_08.png",
+  "ChatGPT Image 14. feb. 2026, 10_00_31.png",
+  "ChatGPT Image 14. feb. 2026, 10_01_27.png",
+];
+
 export function AboutPage() {
   return (
     <section className="seksjon">
@@ -31,6 +39,19 @@ export function AboutPage() {
             Partiet består av lokale lag i hele landet, digitale frivillige nettverk og en nasjonal programgruppe som
             oppdaterer politikk fortløpende i takt med teknologisk utvikling.
           </p>
+        </div>
+
+        <div className="panel avatar-galleri-panel inngang inngang-1">
+          <h3>Våre digitale avatarer</h3>
+          <p>Et utvalg av våre visuelle representanter brukt i kampanjer og digitale flater.</p>
+
+          <div className="avatar-rad" role="list" aria-label="Avatarbilder">
+            {avatarFiler.map((filnavn) => (
+              <figure key={filnavn} className="avatar-sirkel" role="listitem">
+                <img src={`/images/avatar_bilder/${encodeURIComponent(filnavn)}`} alt="Avatar" loading="lazy" />
+              </figure>
+            ))}
+          </div>
         </div>
       </div>
     </section>

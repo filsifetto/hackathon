@@ -25,12 +25,8 @@ export function CasePage() {
           {sak.innhold.map((avsnitt) => (
             <p key={avsnitt}>{avsnitt}</p>
           ))}
-
           <h3>Videre arbeid</h3>
-          <p>
-            Teknologisk Folkeparti vil utvikle tiltakene i tett samarbeid med innbyggere, fagmiljøer, kommuner og
-            næringsliv. Denne siden er en demonstrasjon av hvordan en moderne saksside kan presenteres digitalt.
-          </p>
+          <p>{sak.videreArbeid}</p>
         </article>
       </div>
     </section>

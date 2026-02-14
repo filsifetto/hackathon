@@ -20,8 +20,8 @@ export function CasesCarousel() {
       <div className="container">
         <div className="slideshow-topp">
           <div>
-            <p className="etikett">Politiske saker</p>
-            <h2 className="seksjonstittel">Utforsk våre viktigste fanesaker</h2>
+            <p className="etikett">Våre fanesaker</p>
+            <h2 className="seksjonstittel">Utforsk fem prioriterte politiske saker</h2>
           </div>
           <div className="slideshow-kontroller">
             <button type="button" className="slideshow-knapp" onClick={() => scrollByCard(-1)} aria-label="Forrige sak">
@@ -36,7 +36,7 @@ export function CasesCarousel() {
         <div ref={trackRef} className="slideshow-spor" role="region" aria-label="Karusell med fanesaker">
           {fanesaker.map((sak, index) => (
             <article key={sak.slug} className={`sak-kort inngang inngang-${(index % 3) + 1}`}>
-              <Link to={`/fanesaker/${sak.slug}`} className="sak-kort-lenke">
+              <Link to={`/saker/${sak.slug}`} className="sak-kort-lenke">
                 <img src={sak.image} alt={sak.tittel} className="sak-bilde" loading="lazy" />
                 <div className="sak-innhold">
                   <h3>{sak.tittel}</h3>

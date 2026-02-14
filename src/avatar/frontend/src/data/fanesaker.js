@@ -1,73 +1,83 @@
 export const fanesaker = [
   {
-    slug: "ai-i-eldreomsorgen",
-    tittel: "AI i eldreomsorgen",
+    slug: "klimaberedskap-med-ai",
+    tittel: "Klimaberedskap med AI",
     kortBeskrivelse:
-      "Trygg teknologi som støtter helsepersonell og gir eldre bedre oppfølging hjemme og på institusjon.",
+      "Vi bruker AI til å redusere klimarisiko, forbedre beredskap og styre kritisk infrastruktur tryggere.",
     ingress:
-      "Teknologisk Folkeparti vil bruke kunstig intelligens til tidligere varsling, bedre oppfølging og mer tid til menneskelig omsorg.",
+      "Vi vil at teknologi skal forebygge skader fra ekstremvær gjennom bedre varsling, datadrevet prioritering og åpne effektmålinger.",
     image: "/images/cases/ai-eldreomsorg.svg",
     innhold: [
-      "Vi prioriterer AI-assisterte varslingstjenester som oppdager avvik i helseforløp tidlig.",
-      "Helsepersonell skal få bedre beslutningsstøtte, ikke mer byråkrati.",
-      "Alle løsninger skal designes med tydelige krav til personvern, samtykke og menneskelig kontroll.",
+      "Vi vil etablere AI-støttet tidlig varsling for flom, ras og kapasitetsproblemer i strøm- og transportnett.",
+      "Tiltak skal måles på faktisk effekt: reduserte utslipp, færre avbrudd og lavere klimaskader.",
+      "Vi setter krav om dataminimering, cybersikkerhet og menneskelig kontroll i alle kritiske systemer.",
     ],
+    videreArbeid:
+      "Vi prioriterer nasjonale standarder for klima- og beredskapsdata, slik at kommuner og stat kan handle raskere og mer samordnet.",
   },
   {
-    slug: "digitalt-demokrati",
-    tittel: "Digitalt demokrati",
+    slug: "grunntrygghet-i-omstilling",
+    tittel: "Grunntrygghet i omstilling",
     kortBeskrivelse:
-      "Åpen teknologi for innsyn, medvirkning og enklere dialog mellom innbyggere og folkevalgte.",
+      "Vi vil sikre økonomisk trygghet når automatisering endrer arbeidsmarkedet, uten å svekke velferdsstaten.",
     ingress:
-      "Vi vil bygge en digital demokratiplattform der flere kan delta i politiske prosesser uten unødige barrierer.",
+      "Vi går inn for en styrt modell med inntektsgulv, sterkere omstillingsrett og tydelig vern av offentlige fellestjenester.",
     image: "/images/cases/digitalt-demokrati.svg",
     innhold: [
-      "Alle høringer skal være enklere å finne, forstå og bidra til digitalt.",
-      "Kommuner skal kunne tilby sikre e-dialoger med folkevalgte.",
-      "Kildekode for sentrale demokratiske verktøy bør være åpen der det er forsvarlig.",
+      "Vi vil gjøre tryggheten mer stabil i perioder med ustabil inntekt og raske omstillinger.",
+      "Grunninntekt skal kombineres med kompetansetiltak, overgang til jobb og arbeid som alltid lønner seg.",
+      "Vi avviser modeller der kontanter erstatter helse, skole og omsorg.",
     ],
+    videreArbeid:
+      "Vi vil fase inn tiltak trinnvis med åpen evaluering av fattigdom, arbeidsdeltakelse, helse og tillit over tid.",
   },
   {
-    slug: "teknologi-i-skolen",
-    tittel: "Teknologi i skolen",
+    slug: "ai-i-utdanning-og-fag",
+    tittel: "AI i utdanning og fag",
     kortBeskrivelse:
-      "Smart læring med AI-verktøy som styrker undervisning, tilpasning og digital kompetanse.",
+      "Vi vil gjøre AI til et praktisk verktøy i skole og yrkesfag, med tydelig etikk og faglig kvalitet.",
     ingress:
-      "Skolen skal bruke teknologi på elevenes premisser, med sterke pedagogiske rammer og trygt personvern.",
+      "Skolen skal lære elever å bruke AI ansvarlig, dokumentere valg og kombinere teknologibruk med profesjonell dømmekraft.",
     image: "/images/cases/teknologi-skolen.svg",
     innhold: [
-      "Lærere skal få opplæring i AI-assistert undervisningsplanlegging.",
-      "Elever skal lære kildekritikk, digital etikk og trygg bruk av generativ AI.",
-      "Skoleeiere må velge løsninger som er transparente, inkluderende og universelt utformet.",
+      "Vi vil ha nye vurderingsformer der elevene viser refleksjon, verifisering og selvstendig faglig forståelse.",
+      "Lærere og instruktører skal få systematisk kompetanseløft i AI-pedagogikk.",
+      "Personvern og sikker databruk skal være en integrert del av opplæringen.",
     ],
+    videreArbeid:
+      "Vi vil utvikle nasjonale rammer for ansvarlig AI-bruk i utdanning i samarbeid med skoleeiere, lærere og arbeidsliv.",
   },
   {
-    slug: "automatisert-offentlig-sektor",
-    tittel: "Automatisert offentlig sektor",
+    slug: "digitalt-demokrati-og-personvern",
+    tittel: "Digitalt demokrati og personvern",
     kortBeskrivelse:
-      "Raskere tjenester og mindre venting gjennom ansvarlig automatisering i stat og kommune.",
+      "Vi vil modernisere offentlig sektor uten å bygge svartbokser og overvåkning av innbyggerne.",
     ingress:
-      "Offentlig sektor skal bruke automatisering for å frigjøre tid til oppgaver som krever menneskelig vurdering.",
+      "Digitalisering skal gi raskere tjenester og større tillit gjennom åpenhet, sporbarhet og tydelige klagerettigheter.",
     image: "/images/cases/automatisert-offentlig-sektor.svg",
     innhold: [
-      "Standardiserte saker kan behandles raskere med tydelige kontrollpunkter.",
-      "Innbyggere skal få sporbarhet: hvorfor et vedtak er gjort og hvilke regler som er brukt.",
-      "Digitalisering skal redusere skjemavelde og forenkle kontakt med det offentlige.",
+      "Vi vil ha menneskelig overprøving i saker der automatiserte systemer påvirker rettigheter.",
+      "Data skal brukes med klare formål, minimal innsamling og sterk sikkerhet.",
+      "Offentlige anskaffelser skal favorisere åpne standarder og reviderbare løsninger.",
     ],
+    videreArbeid:
+      "Vi vil etablere tydeligere styringskrav for offentlig AI-bruk, inkludert revisjon, beredskap og innbyggerinnsyn.",
   },
   {
-    slug: "gronn-teknologi-og-data",
-    tittel: "Grønn teknologi og data",
+    slug: "smartere-transport-og-logistikk",
+    tittel: "Smartere transport og logistikk",
     kortBeskrivelse:
-      "Data og AI som motor for klimakutt, energieffektivisering og nye grønne arbeidsplasser.",
+      "Vi vil kutte utslipp og kø med smartere styring, samlasting og bedre koordinering på tvers av transportformer.",
     ingress:
-      "Vi vil bruke teknologi til å kutte utslipp, optimalisere energibruk og bygge et mer robust grønt næringsliv.",
+      "Transportpolitikken vår handler om presisjon og drift: bruke eksisterende infrastruktur bedre før vi bygger nytt.",
     image: "/images/cases/gronn-teknologi-data.svg",
     innhold: [
-      "Smartere kraftstyring i bygg, industri og transport skal gi lavere utslipp.",
-      "Datasentre må stilles krav til energigjenvinning og fornybar drift.",
-      "Norge bør satse på grønn teknologiutvikling som skaper jobber i hele landet.",
+      "Vi vil bruke AI til bedre rutevalg, høyere fyllingsgrad og redusert tomkjøring i varetransport.",
+      "Vi prioriterer prediktivt vedlikehold for vei, bane og havn for å forebygge stans og forsinkelser.",
+      "Klimakrav i bytransport skal kombineres med praktiske løsninger som samlasting og nullutslippslogistikk.",
     ],
+    videreArbeid:
+      "Vi vil bygge felles datastandarder for sømløs samhandling mellom vei, bane og sjø, med målbare klimakrav.",
   },
 ];
 
