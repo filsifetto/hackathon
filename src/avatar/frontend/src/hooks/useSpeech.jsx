@@ -171,9 +171,9 @@ export const SpeechProvider = ({ children }) => {
 
     setLoading(true);
     try {
-      const payload = await postWithFallback("/tts", { message: text });
+      // Chat field should be text-only: do not request TTS/audio pipeline.
+      const payload = await postWithFallback("/chat", { message: text });
       const response = payload?.messages || [];
-      setMessages((messages) => [...messages, ...response]);
       setChatMessages((current) => [
         ...current,
         ...response
