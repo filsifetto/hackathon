@@ -301,6 +301,16 @@ a {
   height: 345px;
 }
 
+.avatar-kontroller {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid rgba(117, 194, 255, 0.25);
+  background: rgba(4, 8, 22, 0.5);
+}
+
 .seksjon {
   padding: 2.2rem 0;
 }

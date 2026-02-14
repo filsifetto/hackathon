@@ -203,6 +203,14 @@ export const SpeechProvider = ({ children }) => {
     setMessages((messages) => messages.slice(1));
   };
 
+  /** For debug/test: push a message with only facial expression + animation (no audio). Avatar will apply it and advance immediately. */
+  const pushTestExpression = (facialExpression, animation = "Idle") => {
+    setMessages((prev) => [
+      ...prev,
+      { facialExpression, animation, text: "" },
+    ]);
+  };
+
   useEffect(() => {
     if (messages.length > 0) {
       setMessage(messages[0]);
@@ -222,6 +230,7 @@ export const SpeechProvider = ({ children }) => {
         onMessagePlayed,
         loading,
         chatMessages,
+        pushTestExpression,
       }}
     >
       {children}

@@ -1,9 +1,11 @@
+import { useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Link } from "react-router-dom";
 import { Scenario } from "../components/Scenario";
 import { ChatInterface } from "../components/ChatInterface";
 import { CasesCarousel } from "../components/CasesCarousel";
 import { MessageAudioPlayer } from "../components/MessageAudioPlayer";
+import { useSpeech } from "../hooks/useSpeech";
 
 const fanesaker = [
   {
@@ -21,6 +23,16 @@ const fanesaker = [
 ];
 
 export function HomePage() {
+  const avatarInputRef = useRef(null);
+  const { tts, loading, message, startRecording, stopRecording, recording } = useSpeech();
+
+  const sendToAvatar = () => {
+    const text = avatarInputRef.current?.value?.trim();
+    if (!text || loading || message) return;
+    tts(text);
+    avatarInputRef.current.value = "";
+  };
+
   return (
     <div>
       <section className="helt-seksjon">
@@ -55,6 +67,33 @@ export function HomePage() {
               <Canvas shadows camera={{ position: [0, 0, 0], fov: 10 }}>
                 <Scenario />
               </Canvas>
+            </div>
+            <div className="avatar-kontroller">
+              <button
+                type="button"
+                onClick={recording ? stopRecording : startRecording}
+                disabled={loading || !!message}
+                className={`mic-button ${recording ? "is-recording" : ""}`}
+                aria-label={recording ? "Stopp opptak" : "Start opptak"}
+              >
+                {recording ? "Stopp" : "Mikrofon"}
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="text"
+                className="chat-input"
+                placeholder="Still et spørsmål om partiets politikk..."
+                disabled={loading || !!message}
+                onKeyDown={(e) => e.key === "Enter" && sendToAvatar()}
+              />
+              <button
+                type="button"
+                disabled={loading || !!message}
+                onClick={sendToAvatar}
+                className="send-button"
+              >
+                Send
+              </button>
             </div>
           </div>
         </div>
