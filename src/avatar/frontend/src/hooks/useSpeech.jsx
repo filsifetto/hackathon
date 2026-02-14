@@ -15,7 +15,7 @@ const defaultProdUrls = !isDev && envUrls.length === 0 && sameOriginUrl ? [sameO
 
 const backendUrls = Array.from(new Set([...envUrls, ...defaultProdUrls, ...localDevUrls].filter(Boolean)));
 
-async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
+async function fetchWithTimeout(url, options = {}, timeoutMs = 60000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -49,6 +49,10 @@ async function postWithFallback(path, body) {
       }
       return await response.json();
     } catch (error) {
+      if (error?.name === "AbortError") {
+        lastError = new Error(`Request timed out on ${baseUrl} (possibly cold start)`);
+        continue;
+      }
       lastError = error;
       // Try next backend URL.
     }
