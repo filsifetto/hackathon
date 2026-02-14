@@ -121,6 +121,8 @@ Open [http://localhost:5173](http://localhost:5173). Backend URL is `http://loca
 
 **Design test (static avatar only):** Open [http://localhost:5173/test-avatar.html](http://localhost:5173/test-avatar.html) to view only the 3D avatar (same scene, no chat/backend). The test page loads **only** `public/models/avatar.glb` and shows it in T-pose (no animations), so it works even if `animations_data.bin` is missing.
 
+**If nothing shows:** Open [http://localhost:5173/test-avatar-debug.html](http://localhost:5173/test-avatar-debug.html) for a diagnostic. It reports: (1) whether the avatar URL is fetchable, (2) whether the Canvas/WebGL mounted, (3) whether the GLB loaded in Three.js. You should at least see a red cube; the panel shows which step fails.
+
 ### 4. Avatar model
 
 The frontend loads the 3D avatar from the **backend** (`GET /models/avatar.glb`), which serves the file from `frontend/public/models/avatar.glb`. This avoids cache issues and keeps one source of truth.

@@ -5,6 +5,7 @@
 import { useAnimations, useGLTF } from "@react-three/drei";
 import React, { useEffect, useMemo, useRef, Suspense } from "react";
 import { AVATAR_GLB_URL } from "../constants/avatarUrl";
+import { PlaceholderAvatar } from "./PlaceholderAvatar";
 
 const animationsUrl = "/models/animations.gltf";
 
@@ -152,16 +153,18 @@ function AvatarMeshes({ onLoaded }) {
 }
 
 export function StaticAvatar(props) {
-  const { onLoaded } = props;
+  const { onLoaded, skipAnimations = false } = props;
   const group = useRef();
   return (
     <group ref={group} position={[0, -0.5, 0]}>
-      <Suspense fallback={null}>
+      <Suspense fallback={<PlaceholderAvatar />}>
         <AvatarMeshes onLoaded={onLoaded} />
       </Suspense>
-      <Suspense fallback={null}>
-        <IdleAnimation groupRef={group} />
-      </Suspense>
+      {!skipAnimations && (
+        <Suspense fallback={null}>
+          <IdleAnimation groupRef={group} />
+        </Suspense>
+      )}
     </group>
   );
 }

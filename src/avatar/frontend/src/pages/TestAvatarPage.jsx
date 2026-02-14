@@ -14,6 +14,7 @@ class TestAvatarErrorBoundary extends Component {
   componentDidCatch(error) {
     console.warn("Avatar failed to load:", error?.message || error);
     this.props.setLoaded?.(true);
+    this.props.onError?.(error?.message || String(error));
   }
 
   render() {
@@ -25,6 +26,7 @@ class TestAvatarErrorBoundary extends Component {
 export function TestAvatarPage() {
   const cameraControlsRef = useRef();
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(null);
   useEffect(() => {
     cameraControlsRef.current?.setLookAt(0, 2.2, 5, 0, 1.0, 0, true);
   }, []);
@@ -39,16 +41,34 @@ export function TestAvatarPage() {
           minPolarAngle={0.2}
           maxPolarAngle={Math.PI / 2}
         />
-        <Environment preset="sunset" />
-        <Suspense
-          fallback={<PlaceholderAvatar />}
-        >
-          <TestAvatarErrorBoundary setLoaded={setLoaded}>
-            <StaticAvatar onLoaded={() => setLoaded(true)} />
+        <Suspense fallback={<PlaceholderAvatar />}>
+          <Environment preset="sunset" />
+          <TestAvatarErrorBoundary setLoaded={setLoaded} onError={setError}>
+            <StaticAvatar onLoaded={() => setLoaded(true)} skipAnimations />
           </TestAvatarErrorBoundary>
         </Suspense>
       </Canvas>
-      {!loaded && (
+      {error && (
+        <div
+          style={{
+            position: "fixed",
+            top: 12,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "rgba(200,60,60,0.95)",
+            color: "#fff",
+            padding: "8px 16px",
+            borderRadius: 8,
+            fontSize: 13,
+            maxWidth: "90%",
+            zIndex: 20,
+            pointerEvents: "auto",
+          }}
+        >
+          Avatar failed: {error}
+        </div>
+      )}
+      {!loaded && !error && (
         <div
           style={{
             position: "fixed",
