@@ -4,4 +4,4 @@
  * frontend/public/models/avatar.glb and avoids cross-origin or cache failures.
  * Bump the version query when you change the avatar file to bypass cache.
  */
-export const AVATAR_GLB_URL = "/models/avatar.glb?v=6";
+export const AVATAR_GLB_URL = "/models/avatar.glb?v=7";

@@ -3,13 +3,15 @@
  * 1. AVATAR_GLB_URL is same-origin (/models/avatar.glb) so Vite serves
  *    frontend/public/models/avatar.glb. No cross-origin = no CORS/preload failures.
  * 2. useGLTF(AVATAR_GLB_URL) loads the GLB; on failure, AvatarErrorBoundary shows PlaceholderAvatar.
- * 3. If the GLB has Ready Player Me node names (Wolf3D_Head, EyeLeft, etc.), we render
+ * 3. Animations are loaded in AvatarAnimations (inside ErrorBoundary). If animations.gltf or
+ *    animations_data.bin is missing, the real avatar still shows, just without skeleton animation.
+ * 4. If the GLB has Ready Player Me node names (Wolf3D_Head, EyeLeft, etc.), we render
  *    the full rig with expressions and lip-sync; otherwise we render a simple <primitive>.
  */
 import { useAnimations, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { button, useControls } from "leva";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { Component, Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 import * as THREE from "three";
 import { useSpeech } from "../hooks/useSpeech";
@@ -17,6 +19,39 @@ import { AVATAR_GLB_URL } from "../constants/avatarUrl";
 import facialExpressions from "../constants/facialExpressions";
 import visemesMapping from "../constants/visemesMapping";
 import morphTargets from "../constants/morphTargets";
+
+const ANIMATIONS_URL = "/models/animations.gltf";
+
+class AnimationsErrorBoundary extends Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(err) {
+    console.warn("[Avatar] Animations failed to load (avatar will show without skeleton animation):", err?.message || err);
+  }
+  render() {
+    return this.state.hasError ? null : this.props.children;
+  }
+}
+
+function AvatarAnimations({ groupRef, animationName, onReady }) {
+  const gltf = useGLTF(ANIMATIONS_URL);
+  const animations = gltf?.animations ?? [];
+  const { actions, mixer } = useAnimations(animations, groupRef);
+  useEffect(() => {
+    if (onReady && animations.length) onReady(animations.map((a) => a.name));
+  }, [animations, onReady]);
+  useEffect(() => {
+    const name = animations.find((a) => a.name === animationName)?.name ?? animations[0]?.name;
+    const act = name ? actions[name] : undefined;
+    if (act) {
+      act.reset().fadeIn(mixer.stats.actions.inUse === 0 ? 0 : 0.5).play();
+      return () => act.fadeOut(0.5);
+    }
+  }, [animationName, actions, mixer]);
+  return null;
+}
 
 function buildNodesAndMaterials(scene) {
   if (!scene) return { nodes: {}, materials: {} };
@@ -56,10 +91,12 @@ export function Avatar(props) {
       nodes?.Wolf3D_Body?.geometry;
     console.log("[Avatar] Loaded:", AVATAR_GLB_URL, "| RPM format:", !!isRpm, "| Node names:", Object.keys(nodes || {}).slice(0, 20).join(", "));
   }, [scene, nodes]);
-  const { animations } = useGLTF("/models/animations.gltf");
   const { message, onMessagePlayed } = useSpeech();
   const [lipsync, setLipsync] = useState();
   const [setupMode, setSetupMode] = useState(false);
+  const [animationNames, setAnimationNames] = useState(["Idle"]);
+  const [animation, setAnimation] = useState("Idle");
+  const group = useRef();
 
   useEffect(() => {
     if (!message) {
@@ -78,25 +115,6 @@ export function Avatar(props) {
     setAudio(audio);
     audio.onended = onMessagePlayed;
   }, [message]);
-
-  const group = useRef();
-  const { actions, mixer } = useAnimations(animations, group);
-  const [animation, setAnimation] = useState(
-    animations.find((a) => a.name === "Idle") ? "Idle" : animations[0].name
-  );
-  useEffect(() => {
-    if (actions[animation]) {
-      actions[animation]
-        .reset()
-        .fadeIn(mixer.stats.actions.inUse === 0 ? 0 : 0.5)
-        .play();
-      return () => {
-        if (actions[animation]) {
-          actions[animation].fadeOut(0.5);
-        }
-      };
-    }
-  }, [animation]);
 
   const head = useRef();
   const mouth = useRef();
@@ -167,7 +185,7 @@ export function Avatar(props) {
   useControls("FacialExpressions", {
     animation: {
       value: animation,
-      options: animations.map((a) => a.name),
+      options: animationNames,
       onChange: (value) => setAnimation(value),
     },
     facialExpression: {
@@ -249,6 +267,11 @@ export function Avatar(props) {
     return (
       <group {...props} dispose={null} ref={group} position={[0, -0.5, 0]}>
         <primitive object={scene} />
+        <AnimationsErrorBoundary>
+          <Suspense fallback={null}>
+            <AvatarAnimations groupRef={group} animationName={animation} onReady={setAnimationNames} />
+          </Suspense>
+        </AnimationsErrorBoundary>
       </group>
     );
   }
@@ -328,6 +351,11 @@ export function Avatar(props) {
           skeleton={nodes.Wolf3D_Outfit_Top.skeleton}
         />
       )}
+      <AnimationsErrorBoundary>
+        <Suspense fallback={null}>
+          <AvatarAnimations groupRef={group} animationName={animation} onReady={setAnimationNames} />
+        </Suspense>
+      </AnimationsErrorBoundary>
     </group>
   );
 }
