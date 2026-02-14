@@ -1,6 +1,59 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-const backendUrl = import.meta.env.VITE_AVATAR_BACKEND_URL || "http://localhost:3000";
+const configuredUrls = [
+  ...(import.meta.env.VITE_AVATAR_BACKEND_URLS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
+  import.meta.env.VITE_AVATAR_BACKEND_URL || "",
+  "http://localhost:3200",
+  "http://localhost:3100",
+  "http://localhost:3000",
+].filter(Boolean);
+
+const backendUrls = Array.from(new Set(configuredUrls));
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function postWithFallback(path, body) {
+  let lastError = null;
+
+  for (const baseUrl of backendUrls) {
+    const endpoint = `${baseUrl}${path}`;
+    try {
+      const response = await fetchWithTimeout(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        let detail = "";
+        try {
+          const err = await response.json();
+          detail = err?.detail || err?.error || "";
+        } catch {
+          // Ignore JSON parsing errors.
+        }
+        throw new Error(detail || `Backend returned ${response.status} on ${baseUrl}`);
+      }
+      return await response.json();
+    } catch (error) {
+      lastError = error;
+      // Try next backend URL.
+    }
+  }
+
+  throw lastError || new Error("No available backend URL");
+}
 
 const SpeechContext = createContext();
 
@@ -29,18 +82,8 @@ export const SpeechProvider = ({ children }) => {
       const base64Audio = reader.result.split(",")[1];
       setLoading(true);
       try {
-        const data = await fetch(`${backendUrl}/sts`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ audio: base64Audio }),
-        });
-        if (!data.ok) {
-          throw new Error(`Backend returned ${data.status}`);
-        }
-
-        const response = (await data.json()).messages || [];
+        const payload = await postWithFallback("/sts", { audio: base64Audio });
+        const response = payload?.messages || [];
         setMessages((messages) => [...messages, ...response]);
         setChatMessages((current) => [
           ...current,
@@ -122,25 +165,8 @@ export const SpeechProvider = ({ children }) => {
 
     setLoading(true);
     try {
-      const data = await fetch(`${backendUrl}/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: text }),
-      });
-      if (!data.ok) {
-        let detail = "";
-        try {
-          const err = await data.json();
-          detail = err?.detail || err?.error || "";
-        } catch {
-          // Ignore JSON parsing errors and fall back to status text.
-        }
-        throw new Error(detail || `Backend returned ${data.status}`);
-      }
-
-      const response = (await data.json()).messages || [];
+      const payload = await postWithFallback("/chat", { message: text });
+      const response = payload?.messages || [];
       setMessages((messages) => [...messages, ...response]);
       setChatMessages((current) => [
         ...current,

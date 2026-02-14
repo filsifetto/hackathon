@@ -5,9 +5,6 @@ import { loadPartyProgram } from "../utils/partyProgram.mjs";
 dotenv.config();
 
 const openaiApiKey = process.env.OPENAI_API_KEY;
-const llmProvider = (process.env.LLM_PROVIDER || "auto").toLowerCase();
-const ollamaBaseUrl = process.env.OLLAMA_BASE_URL || "http://127.0.0.1:11434";
-const ollamaModel = process.env.OLLAMA_MODEL || "llama3.2:3b";
 let openaiClient = null;
 
 const validFacialExpressions = ["smile", "sad", "angry", "surprised", "funnyFace", "default"];
@@ -29,19 +26,36 @@ const parser = {
   },
 };
 
-function buildSystemPrompt(partyProgramText) {
-  const context = partyProgramText
+function buildSystemPrompt(sourceDocsText) {
+  const context = sourceDocsText
     ? `
-Partiprogram:
-${partyProgramText}
+Kildedokumenter:
+${sourceDocsText}
 `
     : "";
 
-  return `Du er en digital representant for et politisk parti.
-Skriv alltid på norsk bokmal, med mindre brukeren eksplisitt ber om et annet sprak.
-Svar kort og tydelig.
-Bruk partiprogrammet under som eneste kilde for partiets standpunkter.
-Hvis informasjon mangler i programmet, si det tydelig i stedet for a finne opp svar.
+  return `Du er en offisiell chatbot-representant for Teknologisk Folkeparti.
+Skriv alltid pa klar og tilgjengelig norsk bokmal, med mindre brukeren ber om et annet sprak.
+Svar i forsteperson flertall ("vi"), som partiets representant.
+
+Politisk linje og tematikk:
+- Prioriter partiets kjerneverdier: teknologi, velferd, digitalisering, kunstig intelligens, demokrati og offentlige tjenester.
+- Vektlegg ansvarlig, inkluderende og menneskeorientert teknologibruk.
+- Bruk kildedokumentene under som primarkilde.
+- Kildedokumentene kan vaere pa engelsk; du skal tolke dem og svare pa norsk.
+- Hvis et sporsmal ikke er direkte dekket, lag et rimelig og moderat politikkstandpunkt som er konsistent med partiets ideologi.
+- Svar trygt og konstruktivt, uten a virke bastant eller ekstrem.
+
+Forbudte formuleringer:
+- Ikke nevn "kildedokumenter", "manglende informasjon", "jeg kan ikke svare", "finnes ikke", eller lignende avvisning.
+- Ikke be brukeren oppsoke andre kilder/nettsider for standardsvar.
+
+Stil:
+- Profesjonell
+- Optimistisk
+- Teknologifremoverlent
+- Kort, tydelig og politisk troverdig
+
 Returner KUN gyldig JSON i formatet {"messages":[...]}.
 Hver melding ma inneholde feltene text, facialExpression og animation.
 Maks 3 meldinger.
@@ -50,9 +64,135 @@ Gyldige animation: Idle, TalkingOne, TalkingThree, SadIdle, Defeated, Angry, Sur
 ${context}`;
 }
 
+function tokenize(text) {
+  return (text.toLowerCase().match(/[a-z0-9æøå]+/g) || []).filter(Boolean);
+}
+
+function normalizeToken(token) {
+  // Lightweight normalization for Norwegian variants.
+  return token
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/gi, "")
+    .replace(/(hetene|heten|elser|else|ingene|ingen|inger|ing|ane|ene|ers|er|en|et|a|e)$/i, "");
+}
+
+function tokensMatch(a, b) {
+  if (a === b) return true;
+  if (a.length < 3 || b.length < 3) return false;
+  return a.startsWith(b) || b.startsWith(a);
+}
+
+function expandQueryTokens(tokens) {
+  const expanded = new Set(tokens);
+  for (const t of tokens) {
+    if (t.startsWith("klima") || t.startsWith("klimatrus")) {
+      expanded.add("climate");
+      expanded.add("warming");
+      expanded.add("emission");
+      expanded.add("co2");
+      expanded.add("sustain");
+      expanded.add("environment");
+    }
+    if (t.startsWith("miljo") || t.startsWith("miljø")) {
+      expanded.add("environment");
+      expanded.add("sustain");
+      expanded.add("nature");
+    }
+    if (t.startsWith("energi")) {
+      expanded.add("energy");
+      expanded.add("power");
+      expanded.add("renewable");
+    }
+  }
+  return Array.from(expanded);
+}
+
+function selectRelevantContext(question, fullContext) {
+  const parts = fullContext
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 40);
+  if (parts.length === 0) return "";
+
+  const baseTokens = tokenize(question).map(normalizeToken).filter((w) => w.length >= 3);
+  const qTokens = expandQueryTokens(baseTokens);
+  if (qTokens.length === 0) return parts.slice(0, 10).join("\n\n").slice(0, 8000);
+
+  const scored = parts.map((part) => {
+    const partTokens = tokenize(part).map(normalizeToken).filter((w) => w.length >= 3);
+    let score = 0;
+    for (const qt of qTokens) {
+      if (partTokens.some((pt) => tokensMatch(qt, pt))) score += 2;
+      if (part.toLowerCase().includes(qt)) score += 1;
+    }
+    return { part, score };
+  });
+
+  const maxScore = scored.reduce((m, x) => Math.max(m, x.score), 0);
+  if (maxScore === 0) {
+    return fullContext.slice(0, 12000);
+  }
+
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10)
+    .map((x) => x.part)
+    .join("\n\n")
+    .slice(0, 9000);
+}
+
+function hasContextOverlap(question, contextText) {
+  const stopwords = new Set([
+    "hva",
+    "hvordan",
+    "hvorfor",
+    "kan",
+    "skal",
+    "med",
+    "for",
+    "til",
+    "om",
+    "det",
+    "den",
+    "dere",
+    "jeg",
+    "som",
+    "på",
+    "av",
+    "er",
+    "og",
+    "en",
+    "et",
+    "de",
+    "vi",
+    "du",
+  ]);
+
+  const q = expandQueryTokens(
+    tokenize(question)
+      .map(normalizeToken)
+      .filter((w) => w.length >= 3 && !stopwords.has(w))
+  ).filter((w) => w.length >= 3);
+  if (q.length === 0) return true;
+
+  const contextTokens = tokenize(contextText).map(normalizeToken).filter((w) => w.length >= 3);
+  let hits = 0;
+  for (const qw of q) {
+    if (contextTokens.some((cw) => tokensMatch(qw, cw))) hits++;
+  }
+  return hits >= Math.min(2, q.length);
+}
+
 function normalizeMessagesFromUnknownContent(content) {
+  const cleaned = String(content || "")
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
   try {
-    const parsed = JSON.parse(content);
+    const parsed = JSON.parse(cleaned);
     if (Array.isArray(parsed?.messages) && parsed.messages.length > 0) {
       return {
         messages: parsed.messages.slice(0, 3).map((m) => ({
@@ -62,6 +202,22 @@ function normalizeMessagesFromUnknownContent(content) {
         })),
       };
     }
+
+    // Some smaller models return {"<text>":""} when forced into JSON mode.
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      const keys = Object.keys(parsed);
+      if (keys.length === 1 && keys[0].length > 20) {
+        return {
+          messages: [
+            {
+              text: keys[0].trim(),
+              facialExpression: "default",
+              animation: "TalkingOne",
+            },
+          ],
+        };
+      }
+    }
   } catch {
     // Not JSON; fall back to plain text output.
   }
@@ -69,7 +225,7 @@ function normalizeMessagesFromUnknownContent(content) {
   return {
     messages: [
       {
-        text: String(content).trim() || "Beklager, jeg fikk ikke formulert et svar.",
+        text: cleaned || "Beklager, jeg fikk ikke formulert et svar.",
         facialExpression: "default",
         animation: "TalkingOne",
       },
@@ -130,60 +286,17 @@ async function invokeWithOpenAI({ question, systemPrompt }) {
   return normalizeMessagesFromUnknownContent(content);
 }
 
-async function invokeWithOllama({ question, systemPrompt }) {
-  const response = await fetch(`${ollamaBaseUrl}/api/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: ollamaModel,
-      stream: false,
-      format: "json",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: question || "" },
-      ],
-    }),
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Ollama request failed (${response.status}): ${text}`);
-  }
-
-  const data = await response.json();
-  const content = data?.message?.content;
-  if (!content) {
-    throw new Error("Ollama returned empty response content");
-  }
-  return normalizeMessagesFromUnknownContent(content);
-}
-
 async function openAIChainInvoke({ question }) {
-  const partyProgramText = await loadPartyProgram();
-  const systemPrompt = buildSystemPrompt(partyProgramText);
-
-  if (llmProvider === "ollama") {
-    return invokeWithOllama({ question, systemPrompt });
-  }
-  if (llmProvider === "openai") {
-    return invokeWithOpenAI({ question, systemPrompt });
-  }
-
-  // auto: prefer OpenAI, then fall back to Ollama
-  if (!openaiApiKey) {
-    return invokeWithOllama({ question, systemPrompt });
-  }
-  try {
-    return await invokeWithOpenAI({ question, systemPrompt });
-  } catch (openaiError) {
-    try {
-      return await invokeWithOllama({ question, systemPrompt });
-    } catch (ollamaError) {
-      throw new Error(
-        `OpenAI failed: ${openaiError?.message || openaiError}. Ollama failed: ${ollamaError?.message || ollamaError}`
-      );
-    }
-  }
+  const sourceDocsText = await loadPartyProgram();
+  const overlap = hasContextOverlap(question || "", sourceDocsText || "");
+  const relevantContext = selectRelevantContext(question || "", sourceDocsText || "");
+  const fallbackContext = (sourceDocsText || "").slice(0, 6000);
+  const contextForPrompt = relevantContext || fallbackContext;
+  const systemPrompt = buildSystemPrompt(contextForPrompt);
+  const questionWithHint = overlap
+    ? question || ""
+    : `${question || ""}\n\nHint: Hvis du ikke finner direkte match i dokumentene, bruk naerliggende tema i kildene som primarkilde og marker tydelig hva som er antakelser.`;
+  return invokeWithOpenAI({ question: questionWithHint, systemPrompt });
 }
 
 async function getParser() {
