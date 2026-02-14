@@ -1,9 +1,9 @@
 const avatarFiler = [
-  "ChatGPT Image 14. feb. 2026, 09_52_59.png",
-  "ChatGPT Image 14. feb. 2026, 09_57_56.png",
-  "ChatGPT Image 14. feb. 2026, 09_59_08.png",
-  "ChatGPT Image 14. feb. 2026, 10_00_31.png",
-  "ChatGPT Image 14. feb. 2026, 10_01_27.png",
+  "representant-1.png",
+  "representant-2.png",
+  "representant-3.png",
+  "representant-4.png",
+  "representant-5.png",
 ];
 
 export function AboutPage() {
@@ -41,17 +41,18 @@ export function AboutPage() {
           </p>
         </div>
 
-        <div className="panel avatar-galleri-panel inngang inngang-1">
-          <h3>Våre digitale avatarer</h3>
-          <p>Et utvalg av våre visuelle representanter brukt i kampanjer og digitale flater.</p>
+      </div>
 
-          <div className="avatar-rad" role="list" aria-label="Avatarbilder">
-            {avatarFiler.map((filnavn) => (
-              <figure key={filnavn} className="avatar-sirkel" role="listitem">
-                <img src={`/images/avatar_bilder/${encodeURIComponent(filnavn)}`} alt="Avatar" loading="lazy" />
-              </figure>
-            ))}
-          </div>
+      <div className="container representanter-seksjon inngang inngang-1">
+        <h3>Våre representanter</h3>
+        <p>Et utvalg av våre visuelle representanter brukt i kampanjer og digitale flater.</p>
+
+        <div className="avatar-rad" role="list" aria-label="Representanter">
+          {avatarFiler.map((filnavn) => (
+            <figure key={filnavn} className="avatar-sirkel" role="listitem">
+              <img src={`/images/avatar_bilder/${filnavn}`} alt="Representant" loading="lazy" />
+            </figure>
+          ))}
         </div>
       </div>
     </section>
