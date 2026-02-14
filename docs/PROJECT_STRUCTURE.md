@@ -13,13 +13,20 @@ hackathon/
 │   ├── README.md          # This docs index
 │   ├── API_SETUP.md       # API key setup and security
 │   └── PROJECT_STRUCTURE.md  # This file
-├── src/                   # Application source code
-│   └── avatar/            # Party representative talking avatar
-│       ├── README.md      # Avatar setup and run instructions
-│       ├── backend/       # API server (LLM, TTS, lip-sync, speech-to-text)
-│       ├── frontend/      # React + Three.js UI and 3D avatar
-│       └── content/       # Party program (positions, tone) for the avatar
-└── assets/                # Static assets (images, media, branding) – add as needed
+├── src/                   # Application source code (see src/README.md)
+│   ├── README.md          # Overview of apps (avatar, rag)
+│   ├── avatar/            # Party representative talking avatar
+│   │   ├── README.md      # Avatar setup and run instructions
+│   │   ├── backend/       # API server (LLM, TTS, lip-sync, speech-to-text)
+│   │   ├── frontend/      # React + Three.js UI and 3D avatar
+│   │   └── content/       # Party program (positions, tone) for the avatar
+│   └── rag/               # RAG system (Qdrant + OpenAI)
+│       ├── README.md      # RAG setup, ingest, search, document feedback
+│       ├── core/          # Python library (config, loaders, services, database)
+│       ├── scripts/       # CLI: setup_database, ingest, interactive_search, etc.
+│       ├── data/          # Documents and subject-scoped data
+│       └── docs/          # RAG design and planning
+└── assets/                # Static assets (images, media, branding)
 ```
 
 ## Conventions
@@ -34,9 +41,11 @@ hackathon/
 |--------------|--------|
 | Change the party’s name, values, or policy positions | `src/avatar/content/party_program.md` |
 | Add or change API keys / env vars | `.env` (and [docs/API_SETUP.md](API_SETUP.md)) |
-| Modify the backend API (endpoints, LLM, TTS) | `src/avatar/backend/` |
+| Modify the avatar backend API (endpoints, LLM, TTS) | `src/avatar/backend/` |
 | Modify the 3D avatar or chat UI | `src/avatar/frontend/src/` |
+| Work on RAG: ingest, search, document feedback | `src/rag/` (see [src/rag/README.md](../src/rag/README.md)) |
 | Add project-wide documentation | `docs/` (and list it in [docs/README.md](README.md)) |
+| Add static images or media | `assets/` |
 
 ## Running the project
 
@@ -47,3 +56,4 @@ From the repo root:
    - Terminal 1: `yarn avatar:backend`  
    - Terminal 2: `yarn avatar:frontend`  
    Details: [src/avatar/README.md](../src/avatar/README.md).
+3. **RAG (optional):** Python venv, `docker-compose up -d` for Qdrant, then run scripts from `src/rag/`. Details: [src/rag/README.md](../src/rag/README.md).

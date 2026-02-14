@@ -6,8 +6,8 @@ This folder contains project-wide documentation. Use this index to find what you
 
 | Document | Purpose |
 |----------|---------|
-| [**API_SETUP.md**](API_SETUP.md) | How to add and manage API keys (OpenAI, ElevenLabs, etc.) securely. **Start here** before running the avatar. |
-| [**PROJECT_STRUCTURE.md**](PROJECT_STRUCTURE.md) | High-level layout of the repo, where code and assets live, and conventions. |
+| [**API_SETUP.md**](API_SETUP.md) | How to add and manage API keys (OpenAI, ElevenLabs, etc.) securely. **Start here** before running the avatar or RAG. |
+| [**PROJECT_STRUCTURE.md**](PROJECT_STRUCTURE.md) | High-level layout of the repo, where code and assets live, and “where to change what”. |
 
 ## Quick links by task
 
@@ -15,6 +15,8 @@ This folder contains project-wide documentation. Use this index to find what you
 - **Understanding the repo layout:** [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
 - **Running the party avatar:** [../src/avatar/README.md](../src/avatar/README.md)
 - **Editing the party’s positions:** [../src/avatar/content/party_program.md](../src/avatar/content/party_program.md)
+- **RAG system (ingest, search, document feedback):** [../src/rag/README.md](../src/rag/README.md)
+- **Source code overview:** [../src/README.md](../src/README.md)
 
 ## Adding new documentation
 
