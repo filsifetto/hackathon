@@ -4,7 +4,7 @@ import { useSpeech } from "../hooks/useSpeech";
 export const ChatInterface = ({ hidden }) => {
   const input = useRef();
   const timeline = useRef();
-  const { tts, loading, message, startRecording, stopRecording, recording, chatMessages } = useSpeech();
+  const { tts, loading, message, chatMessages } = useSpeech();
 
   const sendMessage = () => {
     const text = input.current?.value?.trim();
@@ -29,9 +29,7 @@ export const ChatInterface = ({ hidden }) => {
       <div className="chat-header">
         <h3>Spørsmålslinje</h3>
         <p>
-          {recording
-            ? "Tar opp lyd..."
-            : loading
+          {loading
             ? "Representanten forbereder svar..."
             : message
             ? "Representanten svarer nå"
@@ -52,15 +50,6 @@ export const ChatInterface = ({ hidden }) => {
       </div>
 
       <div className="chat-controls">
-        <button
-          onClick={recording ? stopRecording : startRecording}
-          disabled={loading || !!message}
-          className={`mic-button ${recording ? "is-recording" : ""}`}
-          aria-label={recording ? "Stopp opptak" : "Start opptak"}
-        >
-          {recording ? "Stopp" : "Mikrofon"}
-        </button>
-
         <input
           className="chat-input"
           placeholder="Eksempel: Hvordan vil dere styrke skolen?"

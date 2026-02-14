@@ -4,24 +4,31 @@ const arrangementer = [
     sted: "Trondheim",
     tittel: "Åpen teknologidialog",
     beskrivelse: "Møte mellom innbyggere, utviklere og politikere om fremtidens offentlige tjenester.",
+    bilde: "/images/politics/technology.png",
+    bildeKlasse: "arrangement-bilde-zoomout",
   },
   {
     dato: "22. mars 2026",
     sted: "Bergen",
     tittel: "AI i skolen",
     beskrivelse: "Panelsamtale om kunstig intelligens i klasserommet med lærere, elever og foresatte.",
+    bilde: "/images/politics/school.png",
   },
   {
     dato: "2. april 2026",
     sted: "Oslo",
     tittel: "Frivillig kickoff",
     beskrivelse: "Bli med på kampanjeteam for arrangementer, digital mobilisering og lokale aktiviteter.",
+    bilde: "/images/politics/society.png",
+    bildeKlasse: "arrangement-bilde-zoomout",
   },
   {
     dato: "10. april 2026",
     sted: "Tromsø",
     tittel: "Nordlig innovasjonsmøte",
     beskrivelse: "Hvordan teknologi kan styrke distriktsarbeidsplasser og beredskap i nord.",
+    bilde: "/images/politics/society2.png",
+    bildeKlasse: "arrangement-bilde-zoomout",
   },
 ];
 
@@ -38,10 +45,18 @@ export function EventsPage() {
         <div className="kort-rutenett to">
           {arrangementer.map((arr) => (
             <article key={`${arr.dato}-${arr.tittel}`} className="panel arrangement-kort inngang inngang-1">
-              <p className="arr-dato">{arr.dato}</p>
-              <h3>{arr.tittel}</h3>
-              <p className="arr-sted">{arr.sted}</p>
-              <p>{arr.beskrivelse}</p>
+              <img
+                src={arr.bilde}
+                alt={arr.tittel}
+                className={`arrangement-bilde ${arr.bildeKlasse || ""}`}
+                loading="lazy"
+              />
+              <div className="arrangement-innhold">
+                <p className="arr-dato">{arr.dato}</p>
+                <h3>{arr.tittel}</h3>
+                <p className="arr-sted">{arr.sted}</p>
+                <p>{arr.beskrivelse}</p>
+              </div>
             </article>
           ))}
         </div>

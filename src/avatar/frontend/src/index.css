@@ -336,6 +336,33 @@ a {
   padding-left: 1rem;
 }
 
+.arrangement-kort {
+  padding: 0;
+  overflow: hidden;
+}
+
+.arrangement-bilde {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-bottom: 1px solid rgba(126, 212, 255, 0.28);
+  background: #07122e;
+  transform: scale(1.04);
+  transform-origin: center;
+}
+
+.arrangement-bilde-zoomout {
+  object-fit: cover;
+  transform: scale(1.05);
+  object-position: center;
+}
+
+.arrangement-innhold {
+  padding: 1.1rem;
+}
+
 .program-seksjon-tag {
   margin: 0;
   color: var(--mint);
@@ -595,7 +622,7 @@ a {
   }
 
   .chat-controls {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 1fr auto;
     align-items: center;
   }
 

@@ -28,7 +28,7 @@ export function HomePage() {
         <div className="bakgrunn-glod bakgrunn-glod-hoyre" />
         <div className="container helt-grid">
           <div className="tonet-kort inngang inngang-1">
-            <p className="etikett">Stortingsvalget 2026</p>
+            <p className="etikett">Stortingsvalget 2029</p>
             <h1 className="hovedtittel">Teknologi for folket</h1>
             <p className="ingress">
               Teknologisk Folkeparti bygger et Norge der moderne teknologi gjør hverdagen enklere, tryggere og mer rettferdig for alle.
