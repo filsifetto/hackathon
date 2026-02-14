@@ -373,6 +373,41 @@ a {
   gap: 0.55rem;
 }
 
+.chat-log {
+  margin-top: 0.9rem;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 0.2rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.chat-empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.chat-bubble {
+  max-width: min(88%, 52ch);
+  padding: 0.58rem 0.72rem;
+  border-radius: 0.7rem;
+  line-height: 1.5;
+  font-size: 0.94rem;
+}
+
+.chat-bubble-user {
+  justify-self: end;
+  background: rgba(61, 228, 255, 0.2);
+  border: 1px solid rgba(61, 228, 255, 0.45);
+}
+
+.chat-bubble-assistant {
+  justify-self: start;
+  background: rgba(120, 125, 255, 0.2);
+  border: 1px solid rgba(120, 125, 255, 0.44);
+}
+
 .chat-input {
   width: 100%;
   border-radius: 0.68rem;

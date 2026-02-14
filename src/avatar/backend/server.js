@@ -20,13 +20,13 @@ import { sendDefaultMessages, defaultResponse } from "./modules/defaultMessages.
 import { convertAudioToText } from "./modules/whisper.mjs";
 import { voice } from "./modules/elevenLabs.mjs";
 
+dotenv.config();
+
 console.log("ENV CHECK", {
   OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
-  OPEN_API_KEY: !!process.env.OPEN_API_KEY,
+  ELEVEN_LABS_API_KEY: !!process.env.ELEVEN_LABS_API_KEY,
   OPENAI_MODEL: process.env.OPENAI_MODEL || null,
 });
-
-dotenv.config();
 
 const elevenLabsApiKey = process.env.ELEVEN_LABS_API_KEY;
 
@@ -35,12 +35,58 @@ app.use(express.json());
 app.use(cors());
 const port = process.env.PORT || 3000;
 
+async function enrichMessagesWithAudio(messages) {
+  try {
+    return await lipSync({ messages });
+  } catch (error) {
+    console.error("TTS/lip-sync failed, returning text-only response:", error?.message || error);
+    return messages.map((msg) => ({
+      ...msg,
+      audio: null,
+      lipsync: { mouthCues: [] },
+    }));
+  }
+}
+
 // --- ElevenLabs voices (for frontend voice selection) ---
 app.get("/voices", async (req, res) => {
   try {
     res.send(await voice.getVoices(elevenLabsApiKey));
   } catch (e) {
     res.status(500).json({ error: String(e.message) });
+  }
+});
+
+// --- Chat only: user message -> OpenAI (no TTS/lip-sync) ---
+app.post("/chat", async (req, res) => {
+  const userMessage = req.body?.message;
+  if (!userMessage || !String(userMessage).trim()) {
+    res.send({
+      messages: [
+        {
+          text: "Skriv et spørsmål, så svarer jeg.",
+          facialExpression: "default",
+          animation: "Idle",
+        },
+      ],
+    });
+    return;
+  }
+
+  const parser = await getParser();
+  try {
+    const openAImessages = await openAIChainInvoke({
+      question: userMessage,
+      format_instructions: parser.getFormatInstructions(),
+    });
+    res.send({ messages: openAImessages.messages });
+  } catch (error) {
+    console.error("OpenAI chain failed on /chat:", error);
+    res.status(500).json({
+      error: "OPENAI_CHAT_FAILED",
+      detail: error?.message || "Unknown OpenAI error",
+      code: error?.code || error?.error?.code || null,
+    });
   }
 });
 
@@ -60,9 +106,10 @@ app.post("/tts", async (req, res) => {
       format_instructions: parser.getFormatInstructions(),
     });
   } catch (error) {
+    console.error("OpenAI chain failed on /tts:", error?.message || error);
     openAImessages = { messages: defaultResponse };
   }
-  openAImessages = await lipSync({ messages: openAImessages.messages });
+  openAImessages = await enrichMessagesWithAudio(openAImessages.messages);
   res.send({ messages: openAImessages });
 });
 
@@ -84,9 +131,10 @@ app.post("/sts", async (req, res) => {
       format_instructions: parser.getFormatInstructions(),
     });
   } catch (error) {
+    console.error("OpenAI chain failed on /sts:", error?.message || error);
     openAImessages = { messages: defaultResponse };
   }
-  openAImessages = await lipSync({ messages: openAImessages.messages });
+  openAImessages = await enrichMessagesWithAudio(openAImessages.messages);
   res.send({ messages: openAImessages });
 });
 

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Scenario } from "../components/Scenario";
 import { ChatInterface } from "../components/ChatInterface";
 import { CasesCarousel } from "../components/CasesCarousel";
+import { MessageAudioPlayer } from "../components/MessageAudioPlayer";
 
 const fanesaker = [
   {
@@ -78,6 +79,7 @@ export function HomePage() {
           <p className="etikett">Still oss spørsmål</p>
           <h2 className="seksjonstittel">Snakk med vår digitale representant</h2>
           <ChatInterface />
+          <MessageAudioPlayer />
         </div>
       </section>
     </div>

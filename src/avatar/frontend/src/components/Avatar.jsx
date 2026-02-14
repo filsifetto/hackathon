@@ -3,30 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { useSpeech } from "../hooks/useSpeech";
 
 export function Avatar(props) {
-  const { nodes, materials, scene } = useGLTF("/models/avatar.glb");
-  const { animations } = useGLTF("/models/animations.glb");
-  const { message, onMessagePlayed } = useSpeech();
-  const [lipsync, setLipsync] = useState();
-  const [setupMode, setSetupMode] = useState(false);
-
-  useEffect(() => {
-    if (!message) {
-      setAnimation("Idle");
-      return;
-    }
-    setAnimation(message.animation);
-    setFacialExpression(message.facialExpression);
-    setLipsync(message.lipsync);
-    if (!message.audio) {
-      onMessagePlayed();
-      return;
-    }
-    const audio = new Audio("data:audio/mp3;base64," + message.audio);
-    audio.play();
-    setAudio(audio);
-    audio.onended = onMessagePlayed;
-  }, [message]);
-
   const group = useRef();
   const head = useRef();
   const mouth = useRef();

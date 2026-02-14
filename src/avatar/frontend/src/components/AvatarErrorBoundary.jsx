@@ -1,6 +1,5 @@
 import { Component } from "react";
 import { PlaceholderAvatar } from "./PlaceholderAvatar";
-import { MessageAudioPlayer } from "./MessageAudioPlayer";
 
 /**
  * Catches load errors for the 3D avatar (e.g. missing avatar.glb)
@@ -23,7 +22,6 @@ export class AvatarErrorBoundary extends Component {
       return (
         <>
           <PlaceholderAvatar />
-          <MessageAudioPlayer />
         </>
       );
     }

@@ -8,6 +8,7 @@ export const SpeechProvider = ({ children }) => {
   const [recording, setRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [chatMessages, setChatMessages] = useState([]);
   const [message, setMessage] = useState();
   const [loading, setLoading] = useState(false);
 
@@ -35,10 +36,32 @@ export const SpeechProvider = ({ children }) => {
           },
           body: JSON.stringify({ audio: base64Audio }),
         });
-        const response = (await data.json()).messages;
+        if (!data.ok) {
+          throw new Error(`Backend returned ${data.status}`);
+        }
+
+        const response = (await data.json()).messages || [];
         setMessages((messages) => [...messages, ...response]);
+        setChatMessages((current) => [
+          ...current,
+          ...response
+            .filter((item) => item?.text)
+            .map((item, idx) => ({
+              id: `assistant-voice-${Date.now()}-${idx}`,
+              role: "assistant",
+              text: item.text,
+            })),
+        ]);
       } catch (error) {
         console.error(error);
+        setChatMessages((current) => [
+          ...current,
+          {
+            id: `assistant-error-${Date.now()}`,
+            role: "assistant",
+            text: "Beklager, jeg fikk ikke behandlet lydmeldingen nå.",
+          },
+        ]);
       } finally {
         setLoading(false);
       }
@@ -83,19 +106,62 @@ export const SpeechProvider = ({ children }) => {
   };
 
   const tts = async (message) => {
+    const text = message?.trim();
+    if (!text) {
+      return;
+    }
+
+    setChatMessages((current) => [
+      ...current,
+      {
+        id: `user-${Date.now()}`,
+        role: "user",
+        text,
+      },
+    ]);
+
     setLoading(true);
     try {
-      const data = await fetch(`${backendUrl}/tts`, {
+      const data = await fetch(`${backendUrl}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message: text }),
       });
-      const response = (await data.json()).messages;
+      if (!data.ok) {
+        let detail = "";
+        try {
+          const err = await data.json();
+          detail = err?.detail || err?.error || "";
+        } catch {
+          // Ignore JSON parsing errors and fall back to status text.
+        }
+        throw new Error(detail || `Backend returned ${data.status}`);
+      }
+
+      const response = (await data.json()).messages || [];
       setMessages((messages) => [...messages, ...response]);
+      setChatMessages((current) => [
+        ...current,
+        ...response
+          .filter((item) => item?.text)
+          .map((item, idx) => ({
+            id: `assistant-${Date.now()}-${idx}`,
+            role: "assistant",
+            text: item.text,
+          })),
+      ]);
     } catch (error) {
       console.error(error);
+      setChatMessages((current) => [
+        ...current,
+        {
+          id: `assistant-error-${Date.now()}`,
+          role: "assistant",
+          text: `Beklager, jeg klarte ikke å svare akkurat nå. (${error?.message || "ukjent feil"})`,
+        },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -123,6 +189,7 @@ export const SpeechProvider = ({ children }) => {
         message,
         onMessagePlayed,
         loading,
+        chatMessages,
       }}
     >
       {children}
