@@ -40,6 +40,8 @@ export function Avatar(props) {
   const { nodes, materials } = useMemo(() => buildNodesAndMaterials(scene), [scene]);
 
   useEffect(() => {
+    const oldBackendUrl = `${import.meta.env.VITE_AVATAR_BACKEND_URL || "http://localhost:3000"}/models/avatar.glb?v=4`;
+    useGLTF.clear(oldBackendUrl);
     fetch(AVATAR_GLB_URL, { method: "HEAD" })
       .then((r) => console.log("[Avatar] Asset reachable:", r.ok ? "yes" : r.status, AVATAR_GLB_URL))
       .catch((e) => console.error("[Avatar] Asset check failed:", e.message));
